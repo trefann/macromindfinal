@@ -49,11 +49,11 @@ export default {
         },
       },
       backgroundImage: {
-        'gradient-neon': 'linear-gradient(135deg, hsl(217 91% 60%), hsl(270 80% 65%))',
+        'gradient-neon': 'linear-gradient(135deg, hsl(142 76% 45%), hsl(84 81% 44%))',
       },
       boxShadow: {
-        'glow': '0 0 40px hsl(217 91% 60% / 0.3)',
-        'card': '0 8px 32px hsl(220 25% 5% / 0.5)',
+        'glow': '0 0 40px hsl(142 76% 45% / 0.4)',
+        'card': '0 8px 32px hsl(0 0% 0% / 0.7)',
       },
       borderRadius: {
         lg: "var(--radius)",

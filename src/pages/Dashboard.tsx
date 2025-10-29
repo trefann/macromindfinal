@@ -7,6 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { supabase } from "@/integrations/supabase/client";
+import workoutIcon from "@/assets/workout-icon.jpg";
+import nutritionIcon from "@/assets/nutrition-icon.jpg";
+import progressIcon from "@/assets/progress-icon.jpg";
 
 const Dashboard = () => {
   const cardsRef = useRef<HTMLDivElement>(null);
@@ -157,9 +160,13 @@ const Dashboard = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card 
-                className="glass-card border-primary/30 hover:border-primary/60 hover:shadow-glow transition-all cursor-pointer group"
+                className="glass-card border-primary/30 hover:border-primary/60 hover:shadow-glow transition-all cursor-pointer group overflow-hidden"
                 onClick={() => navigate('/diet-planner')}
               >
+                <div 
+                  className="h-32 bg-cover bg-center opacity-80 group-hover:opacity-100 transition-opacity"
+                  style={{ backgroundImage: `url(${nutritionIcon})` }}
+                />
                 <CardHeader>
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500/20 to-teal-600/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                     <Salad className="w-6 h-6 text-teal-500" />
@@ -175,9 +182,13 @@ const Dashboard = () => {
               </Card>
 
               <Card 
-                className="glass-card border-secondary/30 hover:border-secondary/60 hover:shadow-glow transition-all cursor-pointer group"
+                className="glass-card border-secondary/30 hover:border-secondary/60 hover:shadow-glow transition-all cursor-pointer group overflow-hidden"
                 onClick={() => navigate('/workout-planner')}
               >
+                <div 
+                  className="h-32 bg-cover bg-center opacity-80 group-hover:opacity-100 transition-opacity"
+                  style={{ backgroundImage: `url(${workoutIcon})` }}
+                />
                 <CardHeader>
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                     <Dumbbell className="w-6 h-6 text-amber-500" />
@@ -211,9 +222,13 @@ const Dashboard = () => {
               </Card>
 
               <Card 
-                className="glass-card border-primary/30 hover:border-primary/60 hover:shadow-glow transition-all cursor-pointer group"
+                className="glass-card border-primary/30 hover:border-primary/60 hover:shadow-glow transition-all cursor-pointer group overflow-hidden"
                 onClick={() => navigate('/progress')}
               >
+                <div 
+                  className="h-32 bg-cover bg-center opacity-80 group-hover:opacity-100 transition-opacity"
+                  style={{ backgroundImage: `url(${progressIcon})` }}
+                />
                 <CardHeader>
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                     <TrendingUp className="w-6 h-6 text-primary" />

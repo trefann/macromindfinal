@@ -4,6 +4,7 @@ import { gsap } from "gsap";
 import { Dumbbell, Brain, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import heroFitness from "@/assets/hero-fitness.jpg";
 
 const Home = () => {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -51,8 +52,16 @@ const Home = () => {
     <div className="min-h-screen pt-16">
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        {/* Animated background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-secondary/20 animate-pulse" />
+        {/* Hero background image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ 
+            backgroundImage: `url(${heroFitness})`,
+            filter: 'brightness(0.4)'
+          }}
+        />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-primary/20 to-black/80" />
         
         <div className="container mx-auto px-4 relative z-10">
           <div ref={heroRef} className="text-center space-y-8 max-w-4xl mx-auto">
