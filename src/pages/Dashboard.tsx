@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import workoutIcon from "@/assets/workout-icon.jpg";
 import nutritionIcon from "@/assets/nutrition-icon.jpg";
 import progressIcon from "@/assets/progress-icon.jpg";
+import formCheckerIcon from "@/assets/form-checker-icon.jpg";
 
 const Dashboard = () => {
   const cardsRef = useRef<HTMLDivElement>(null);
@@ -204,9 +205,13 @@ const Dashboard = () => {
               </Card>
 
               <Card 
-                className="glass-card border-accent/30 hover:border-accent/60 hover:shadow-glow transition-all cursor-pointer group"
+                className="glass-card border-accent/30 hover:border-accent/60 hover:shadow-glow transition-all cursor-pointer group overflow-hidden"
                 onClick={() => navigate('/form-checker')}
               >
+                <div 
+                  className="h-32 bg-cover bg-center opacity-80 group-hover:opacity-100 transition-opacity"
+                  style={{ backgroundImage: `url(${formCheckerIcon})` }}
+                />
                 <CardHeader>
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-mint-500/20 to-mint-600/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                     <Camera className="w-6 h-6 text-mint-500" />
