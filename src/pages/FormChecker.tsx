@@ -10,6 +10,8 @@ const FormChecker = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [feedback, setFeedback] = useState<FormFeedback[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [detectedExercise, setDetectedExercise] = useState<string>("None");
+  const [confidence, setConfidence] = useState<number>(0);
   const { toast } = useToast();
   
   const containerRef = useRef<HTMLDivElement>(null);
@@ -120,14 +122,16 @@ const FormChecker = () => {
           );
         }
 
-        // Update feedback in real-time
+        // Update feedback and exercise detection in real-time
         setFeedback(prevFeedback => {
-          // Only update if feedback has changed to prevent unnecessary re-renders
           if (JSON.stringify(prevFeedback) !== JSON.stringify(analysis.feedback)) {
             return analysis.feedback;
           }
           return prevFeedback;
         });
+
+        setDetectedExercise(analysis.detectedExercise.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()));
+        setConfidence(Math.round(analysis.confidence * 100));
       }
 
       // Continue the loop
@@ -166,8 +170,10 @@ const FormChecker = () => {
       ctx?.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
     }
 
-    // Reset feedback
+    // Reset feedback and exercise detection
     setFeedback([]);
+    setDetectedExercise("None");
+    setConfidence(0);
 
     toast({
       title: "Analysis Stopped",
@@ -273,11 +279,39 @@ const FormChecker = () => {
 
           {/* Feedback Panel */}
           <div className="space-y-6">
+            {/* Exercise Detection Card */}
+            <Card className="glass-card border-0 bg-gradient-to-br from-primary/10 to-secondary/10">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Video className="w-5 h-5" />
+                  Exercise Detected
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center space-y-2">
+                  <p className="text-3xl font-bold gradient-text">
+                    {detectedExercise}
+                  </p>
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-full max-w-[200px] h-2 bg-background/50 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-neon transition-all duration-300"
+                        style={{ width: `${confidence}%` }}
+                      />
+                    </div>
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {confidence}%
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card className="glass-card border-0">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Video className="w-5 h-5" />
-                  Feedback
+                  <CheckCircle className="w-5 h-5" />
+                  Form Feedback
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -350,8 +384,8 @@ const FormChecker = () => {
                   4. Receive instant feedback on form and technique
                 </p>
                 <p className="mt-4 pt-4 border-t border-white/10">
-                  💡 <strong>Live AI-powered form analysis</strong> using Google MediaPipe. 
-                  Position yourself doing squats for best results.
+                  💡 <strong>Supported exercises:</strong> Squats, Push-ups, Planks, Lunges, 
+                  Jumping Jacks, Mountain Climbers, High Knees, and more bodyweight exercises.
                 </p>
               </CardContent>
             </Card>
