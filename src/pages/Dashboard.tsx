@@ -226,6 +226,28 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
 
+               <Card 
+                className="glass-card border-primary/30 hover:border-primary/60 hover:shadow-glow transition-all cursor-pointer group overflow-hidden"
+                onClick={() => navigate('/meal-tracking')}
+              >
+                <div 
+                  className="h-32 bg-cover bg-center opacity-80 group-hover:opacity-100 transition-opacity"
+                  style={{ backgroundImage: `url(${nutritionIcon})` }}
+                />
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500/20 to-green-600/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                    <UtensilsCrossed className="w-6 h-6 text-green-500" />
+                  </div>
+                  <CardTitle className="text-lg">Meal Tracking</CardTitle>
+                  <CardDescription>Track your daily intake</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button variant="ghost" className="w-full group-hover:bg-primary/10">
+                    Log Meals <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </CardContent>
+              </Card>
+
               <Card 
                 className="glass-card border-primary/30 hover:border-primary/60 hover:shadow-glow transition-all cursor-pointer group overflow-hidden"
                 onClick={() => navigate('/progress')}
