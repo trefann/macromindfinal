@@ -12,6 +12,7 @@ import FormChecker from "./pages/FormChecker";
 import ProfileSetup from "./pages/ProfileSetup";
 import DietPlanner from "./pages/DietPlanner";
 import WorkoutPlanner from "./pages/WorkoutPlanner";
+import MealTracking from "./pages/MealTracking";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/profile" element={<ProfileSetup />} />
           <Route path="/diet-planner" element={<DietPlanner />} />
           <Route path="/workout-planner" element={<WorkoutPlanner />} />
+          <Route path="/meal-tracking" element={<MealTracking />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

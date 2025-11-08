@@ -14,7 +14,433 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ai_chat_history: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_chat_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_foods: {
+        Row: {
+          brand: string | null
+          calories: number
+          carbs: number
+          created_at: string | null
+          fats: number
+          id: string
+          ingredients: string | null
+          name: string
+          protein: number
+          serving_size: string
+          user_id: string
+        }
+        Insert: {
+          brand?: string | null
+          calories: number
+          carbs?: number
+          created_at?: string | null
+          fats?: number
+          id?: string
+          ingredients?: string | null
+          name: string
+          protein?: number
+          serving_size: string
+          user_id: string
+        }
+        Update: {
+          brand?: string | null
+          calories?: number
+          carbs?: number
+          created_at?: string | null
+          fats?: number
+          id?: string
+          ingredients?: string | null
+          name?: string
+          protein?: number
+          serving_size?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      daily_nutrition: {
+        Row: {
+          calories: number | null
+          carbs: number | null
+          created_at: string | null
+          date: string
+          fats: number | null
+          id: string
+          protein: number | null
+          user_id: string
+          water_ml: number | null
+        }
+        Insert: {
+          calories?: number | null
+          carbs?: number | null
+          created_at?: string | null
+          date?: string
+          fats?: number | null
+          id?: string
+          protein?: number | null
+          user_id: string
+          water_ml?: number | null
+        }
+        Update: {
+          calories?: number | null
+          carbs?: number | null
+          created_at?: string | null
+          date?: string
+          fats?: number | null
+          id?: string
+          protein?: number | null
+          user_id?: string
+          water_ml?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_nutrition_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      foods: {
+        Row: {
+          brand: string | null
+          calories: number
+          carbs: number
+          created_at: string | null
+          fats: number
+          id: string
+          is_verified: boolean | null
+          name: string
+          protein: number
+          serving_size: string
+        }
+        Insert: {
+          brand?: string | null
+          calories: number
+          carbs?: number
+          created_at?: string | null
+          fats?: number
+          id?: string
+          is_verified?: boolean | null
+          name: string
+          protein?: number
+          serving_size: string
+        }
+        Update: {
+          brand?: string | null
+          calories?: number
+          carbs?: number
+          created_at?: string | null
+          fats?: number
+          id?: string
+          is_verified?: boolean | null
+          name?: string
+          protein?: number
+          serving_size?: string
+        }
+        Relationships: []
+      }
+      meal_logs: {
+        Row: {
+          calories: number
+          carbs: number
+          custom_food_id: string | null
+          date: string
+          fats: number
+          food_id: string | null
+          id: string
+          logged_at: string | null
+          meal_type: string
+          notes: string | null
+          protein: number
+          servings: number
+          user_id: string
+        }
+        Insert: {
+          calories: number
+          carbs?: number
+          custom_food_id?: string | null
+          date?: string
+          fats?: number
+          food_id?: string | null
+          id?: string
+          logged_at?: string | null
+          meal_type: string
+          notes?: string | null
+          protein?: number
+          servings?: number
+          user_id: string
+        }
+        Update: {
+          calories?: number
+          carbs?: number
+          custom_food_id?: string | null
+          date?: string
+          fats?: number
+          food_id?: string | null
+          id?: string
+          logged_at?: string | null
+          meal_type?: string
+          notes?: string | null
+          protein?: number
+          servings?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      meal_plans: {
+        Row: {
+          created_at: string | null
+          date: string
+          id: string
+          meals: Json
+          total_calories: number | null
+          total_carbs: number | null
+          total_fats: number | null
+          total_protein: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          meals: Json
+          total_calories?: number | null
+          total_carbs?: number | null
+          total_fats?: number | null
+          total_protein?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          meals?: Json
+          total_calories?: number | null
+          total_carbs?: number | null
+          total_fats?: number | null
+          total_protein?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_plans_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          activity_level: string | null
+          age: number | null
+          created_at: string | null
+          fitness_goal: string | null
+          full_name: string | null
+          gender: string | null
+          height_cm: number | null
+          id: string
+          medical_conditions: string | null
+          preferred_cuisine: string | null
+          updated_at: string | null
+          weight_kg: number | null
+        }
+        Insert: {
+          activity_level?: string | null
+          age?: number | null
+          created_at?: string | null
+          fitness_goal?: string | null
+          full_name?: string | null
+          gender?: string | null
+          height_cm?: number | null
+          id: string
+          medical_conditions?: string | null
+          preferred_cuisine?: string | null
+          updated_at?: string | null
+          weight_kg?: number | null
+        }
+        Update: {
+          activity_level?: string | null
+          age?: number | null
+          created_at?: string | null
+          fitness_goal?: string | null
+          full_name?: string | null
+          gender?: string | null
+          height_cm?: number | null
+          id?: string
+          medical_conditions?: string | null
+          preferred_cuisine?: string | null
+          updated_at?: string | null
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
+      progress_measurements: {
+        Row: {
+          arms_cm: number | null
+          body_fat_percentage: number | null
+          chest_cm: number | null
+          created_at: string | null
+          date: string
+          id: string
+          legs_cm: number | null
+          user_id: string
+          waist_cm: number | null
+          weight_kg: number | null
+        }
+        Insert: {
+          arms_cm?: number | null
+          body_fat_percentage?: number | null
+          chest_cm?: number | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          legs_cm?: number | null
+          user_id: string
+          waist_cm?: number | null
+          weight_kg?: number | null
+        }
+        Update: {
+          arms_cm?: number | null
+          body_fat_percentage?: number | null
+          chest_cm?: number | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          legs_cm?: number | null
+          user_id?: string
+          waist_cm?: number | null
+          weight_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "progress_measurements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workout_plans: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          duration_minutes: number | null
+          exercises: Json
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          exercises: Json
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          exercises?: Json
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_plans_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workout_sessions: {
+        Row: {
+          created_at: string | null
+          date: string
+          duration_minutes: number | null
+          exercises_completed: Json | null
+          id: string
+          notes: string | null
+          user_id: string
+          workout_plan_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date?: string
+          duration_minutes?: number | null
+          exercises_completed?: Json | null
+          id?: string
+          notes?: string | null
+          user_id: string
+          workout_plan_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          duration_minutes?: number | null
+          exercises_completed?: Json | null
+          id?: string
+          notes?: string | null
+          user_id?: string
+          workout_plan_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workout_sessions_workout_plan_id_fkey"
+            columns: ["workout_plan_id"]
+            isOneToOne: false
+            referencedRelation: "workout_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
