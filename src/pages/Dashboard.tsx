@@ -272,91 +272,40 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Progress Overview */}
-            <Card className="glass-card lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-primary" />
-                  Progress Overview
-                </CardTitle>
-                <CardDescription>Your fitness journey at a glance</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm font-medium">Daily Calories</span>
-                    <span className="text-sm text-muted-foreground">
-                      {Math.round(progressData.caloriesProgress)}%
-                    </span>
-                  </div>
-                  <Progress value={progressData.caloriesProgress} className="h-3" />
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm font-medium">Workout Completion</span>
-                    <span className="text-sm text-muted-foreground">
-                      {progressData.workoutProgress}%
-                    </span>
-                  </div>
-                  <Progress value={progressData.workoutProgress} className="h-3" />
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm font-medium">Overall Progress</span>
-                    <span className="text-sm text-muted-foreground">
-                      {progressData.overallProgress}%
-                    </span>
-                  </div>
-                  <Progress value={progressData.overallProgress} className="h-3" />
-                </div>
-
-                <Button 
-                  className="w-full mt-4 bg-gradient-neon hover:opacity-90"
-                  onClick={() => navigate('/progress')}
+          {/* AI Insights */}
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Lightbulb className="w-5 h-5 text-accent" />
+                AI Insights
+              </CardTitle>
+              <CardDescription>Tips and recommendations</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {aiTips.map((tip, index) => (
+                <div 
+                  key={index}
+                  className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/5 border border-primary/20 hover:border-primary/40 transition-all"
                 >
-                  View Detailed Progress
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* AI Insights Feed */}
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Lightbulb className="w-5 h-5 text-accent" />
-                  AI Insights
-                </CardTitle>
-                <CardDescription>Tips and recommendations</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {aiTips.map((tip, index) => (
-                  <div 
-                    key={index}
-                    className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/5 border border-primary/20 hover:border-primary/40 transition-all"
-                  >
-                    <p className="text-sm leading-relaxed">{tip}</p>
-                  </div>
-                ))}
-                
-                <div className="pt-4 border-t border-border">
-                  <p className="text-sm font-medium mb-2">Today's Workout</p>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    {dailyStats.workoutTime} minutes completed
-                  </p>
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => navigate('/workout-planner')}
-                  >
-                    View Workout Plan
-                  </Button>
+                  <p className="text-sm leading-relaxed">{tip}</p>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              ))}
+              
+              <div className="pt-4 border-t border-border">
+                <p className="text-sm font-medium mb-2">Today's Workout</p>
+                <p className="text-xs text-muted-foreground mb-3">
+                  {dailyStats.workoutTime} minutes completed
+                </p>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => navigate('/workout-planner')}
+                >
+                  View Workout Plan
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </ProtectedRoute>

@@ -132,6 +132,39 @@ export type Database = {
           },
         ]
       }
+      exercises: {
+        Row: {
+          created_at: string | null
+          equipment: string | null
+          id: string
+          instructions: string | null
+          is_custom: boolean | null
+          muscle_group: string
+          name: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          equipment?: string | null
+          id?: string
+          instructions?: string | null
+          is_custom?: boolean | null
+          muscle_group: string
+          name: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          equipment?: string | null
+          id?: string
+          instructions?: string | null
+          is_custom?: boolean | null
+          muscle_group?: string
+          name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       foods: {
         Row: {
           brand: string | null
@@ -259,6 +292,47 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      personal_records: {
+        Row: {
+          created_at: string | null
+          date: string | null
+          exercise_id: string | null
+          exercise_name: string
+          id: string
+          record_type: string
+          user_id: string
+          value: number
+        }
+        Insert: {
+          created_at?: string | null
+          date?: string | null
+          exercise_id?: string | null
+          exercise_name: string
+          id?: string
+          record_type: string
+          user_id: string
+          value: number
+        }
+        Update: {
+          created_at?: string | null
+          date?: string | null
+          exercise_id?: string | null
+          exercise_name?: string
+          id?: string
+          record_type?: string
+          user_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personal_records_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
             referencedColumns: ["id"]
           },
         ]
@@ -441,12 +515,101 @@ export type Database = {
           },
         ]
       }
+      workout_sets: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          exercise_id: string | null
+          exercise_name: string
+          id: string
+          is_warmup: boolean | null
+          notes: string | null
+          reps: number
+          rpe: number | null
+          user_id: string
+          weight_kg: number | null
+          workout_session_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          exercise_id?: string | null
+          exercise_name: string
+          id?: string
+          is_warmup?: boolean | null
+          notes?: string | null
+          reps: number
+          rpe?: number | null
+          user_id: string
+          weight_kg?: number | null
+          workout_session_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          exercise_id?: string | null
+          exercise_name?: string
+          id?: string
+          is_warmup?: boolean | null
+          notes?: string | null
+          reps?: number
+          rpe?: number | null
+          user_id?: string
+          weight_kg?: number | null
+          workout_session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_sets_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workout_streaks: {
+        Row: {
+          created_at: string | null
+          current_streak: number | null
+          id: string
+          last_workout_date: string | null
+          longest_streak: number | null
+          total_workouts: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_streak?: number | null
+          id?: string
+          last_workout_date?: string | null
+          longest_streak?: number | null
+          total_workouts?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_streak?: number | null
+          id?: string
+          last_workout_date?: string | null
+          longest_streak?: number | null
+          total_workouts?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_estimated_1rm: {
+        Args: { reps: number; weight: number }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
