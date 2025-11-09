@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
-import { Flame, Drumstick, Apple, Droplet, Dumbbell, Salad, Camera, TrendingUp, Sparkles, ArrowRight, Lightbulb } from "lucide-react";
+import { Flame, Drumstick, Apple, Droplet, Dumbbell, Salad, Camera, TrendingUp, Sparkles, ArrowRight, Lightbulb, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
