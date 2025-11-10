@@ -12,6 +12,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { WorkoutTimer } from "@/components/workout-tracking/WorkoutTimer";
 import { SetLogger } from "@/components/workout-tracking/SetLogger";
 import { StrengthProgress } from "@/components/workout-tracking/StrengthProgress";
+import { AdaptiveProgressionEngine } from "@/components/workout-tracking/AdaptiveProgressionEngine";
 
 const WorkoutPlanner = () => {
   const [loading, setLoading] = useState(false);
@@ -210,7 +211,7 @@ const WorkoutPlanner = () => {
                       <div className="flex items-center gap-4">
                         <div className="text-right">
                           <p className="text-2xl font-bold text-primary">{workoutPlan.duration_minutes}</p>
-                          <p className="text-sm text-muted-foreground">minutes</p>
+                          <p className="text-sm text-muted-foreground">min/day</p>
                         </div>
                         <Button
                           onClick={generatePlan}
@@ -226,42 +227,96 @@ const WorkoutPlanner = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {workoutPlan.exercises?.map((exercise: any, index: number) => (
-                        <div
-                          key={index}
-                          className="flex items-start gap-4 p-5 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl border border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-glow"
-                        >
-                          <div className="w-12 h-12 rounded-full bg-gradient-neon flex items-center justify-center flex-shrink-0">
-                            <Dumbbell className="w-6 h-6 text-white" />
+                    {workoutPlan.weekly_schedule ? (
+                      <div className="space-y-6">
+                        {workoutPlan.weekly_schedule.map((day: any, dayIndex: number) => (
+                          <div key={dayIndex} className="space-y-4">
+                            <div className="flex items-center gap-3 mb-4">
+                              <div className="w-10 h-10 rounded-full bg-gradient-neon flex items-center justify-center text-white font-bold">
+                                {day.day}
+                              </div>
+                              <div>
+                                <h3 className="text-lg font-bold text-foreground">{day.focus}</h3>
+                                <p className="text-sm text-muted-foreground">Day {day.day}</p>
+                              </div>
+                            </div>
+                            <div className="space-y-3 ml-13">
+                              {day.exercises?.map((exercise: any, exIndex: number) => (
+                                <div
+                                  key={exIndex}
+                                  className="flex items-start gap-4 p-4 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl border border-primary/20 hover:border-primary/40 transition-all duration-300"
+                                >
+                                  <div className="w-10 h-10 rounded-full bg-gradient-neon flex items-center justify-center flex-shrink-0">
+                                    <Dumbbell className="w-5 h-5 text-white" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="flex items-start justify-between mb-1">
+                                      <h4 className="font-semibold text-foreground">{exercise.name}</h4>
+                                      {exercise.rest_seconds && (
+                                        <span className="text-xs px-2 py-1 bg-accent/20 text-accent rounded-md">
+                                          Rest: {exercise.rest_seconds}s
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mb-2">{exercise.muscle_group}</p>
+                                    {exercise.instructions && (
+                                      <p className="text-xs text-foreground/70 mb-2 italic">{exercise.instructions}</p>
+                                    )}
+                                    <div className="flex gap-2">
+                                      <div className="px-2 py-1 bg-muted/50 rounded text-xs">
+                                        <span className="text-muted-foreground">Sets:</span>
+                                        <span className="ml-1 font-semibold text-foreground">{exercise.sets}</span>
+                                      </div>
+                                      <div className="px-2 py-1 bg-muted/50 rounded text-xs">
+                                        <span className="text-muted-foreground">Reps:</span>
+                                        <span className="ml-1 font-semibold text-foreground">{exercise.reps}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                          <div className="flex-1">
-                            <div className="flex items-start justify-between mb-2">
-                              <h3 className="font-semibold text-lg text-foreground">{exercise.name}</h3>
-                              {exercise.rest_seconds && (
-                                <span className="text-xs px-2 py-1 bg-accent/20 text-accent rounded-md">
-                                  Rest: {exercise.rest_seconds}s
-                                </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {workoutPlan.exercises?.map((exercise: any, index: number) => (
+                          <div
+                            key={index}
+                            className="flex items-start gap-4 p-5 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl border border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-glow"
+                          >
+                            <div className="w-12 h-12 rounded-full bg-gradient-neon flex items-center justify-center flex-shrink-0">
+                              <Dumbbell className="w-6 h-6 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-start justify-between mb-2">
+                                <h3 className="font-semibold text-lg text-foreground">{exercise.name}</h3>
+                                {exercise.rest_seconds && (
+                                  <span className="text-xs px-2 py-1 bg-accent/20 text-accent rounded-md">
+                                    Rest: {exercise.rest_seconds}s
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground mb-3">{exercise.muscle_group}</p>
+                              {exercise.instructions && (
+                                <p className="text-sm text-foreground/80 mb-3 italic">{exercise.instructions}</p>
                               )}
-                            </div>
-                            <p className="text-sm text-muted-foreground mb-3">{exercise.muscle_group}</p>
-                            {exercise.instructions && (
-                              <p className="text-sm text-foreground/80 mb-3 italic">{exercise.instructions}</p>
-                            )}
-                            <div className="flex flex-wrap gap-3">
-                              <div className="px-3 py-1.5 bg-muted/50 rounded-lg">
-                                <span className="text-xs text-muted-foreground">Sets:</span>
-                                <span className="ml-2 font-semibold text-foreground">{exercise.sets}</span>
-                              </div>
-                              <div className="px-3 py-1.5 bg-muted/50 rounded-lg">
-                                <span className="text-xs text-muted-foreground">Reps:</span>
-                                <span className="ml-2 font-semibold text-foreground">{exercise.reps}</span>
+                              <div className="flex flex-wrap gap-3">
+                                <div className="px-3 py-1.5 bg-muted/50 rounded-lg">
+                                  <span className="text-xs text-muted-foreground">Sets:</span>
+                                  <span className="ml-2 font-semibold text-foreground">{exercise.sets}</span>
+                                </div>
+                                <div className="px-3 py-1.5 bg-muted/50 rounded-lg">
+                                  <span className="text-xs text-muted-foreground">Reps:</span>
+                                  <span className="ml-2 font-semibold text-foreground">{exercise.reps}</span>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -284,7 +339,8 @@ const WorkoutPlanner = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="progress">
+            <TabsContent value="progress" className="space-y-6">
+              <AdaptiveProgressionEngine />
               <StrengthProgress />
             </TabsContent>
           </Tabs>
