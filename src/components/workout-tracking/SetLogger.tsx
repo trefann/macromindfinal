@@ -11,10 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 interface SetLoggerProps {
   exerciseName: string;
   exerciseId: string;
+  sessionId?: string | null;
   onSetCompleted?: () => void;
 }
 
-export const SetLogger = ({ exerciseName, exerciseId, onSetCompleted }: SetLoggerProps) => {
+export const SetLogger = ({ exerciseName, exerciseId, sessionId, onSetCompleted }: SetLoggerProps) => {
   const [weight, setWeight] = useState("");
   const [reps, setReps] = useState("");
   const [rpe, setRpe] = useState("7");
@@ -75,6 +76,7 @@ export const SetLogger = ({ exerciseName, exerciseId, onSetCompleted }: SetLogge
       weight_kg: parseFloat(weight),
       reps: parseInt(reps),
       rpe: parseFloat(rpe),
+      workout_session_id: sessionId,
     });
 
     if (error) {

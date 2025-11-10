@@ -15,6 +15,7 @@ import { QuickMacroEntry } from "@/components/meal-tracking/QuickMacroEntry";
 import { FoodSearch } from "@/components/meal-tracking/FoodSearch";
 import { CustomFoodForm } from "@/components/meal-tracking/CustomFoodForm";
 import { MealTimeline } from "@/components/meal-tracking/MealTimeline";
+import { MealPlanHistory } from "@/components/meal-tracking/MealPlanHistory";
 
 const DietPlanner = () => {
   const [loading, setLoading] = useState(false);
@@ -90,9 +91,10 @@ const DietPlanner = () => {
           </div>
 
           <Tabs defaultValue="planner" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsList className="grid w-full grid-cols-3 mb-8">
               <TabsTrigger value="planner">Plan Generator</TabsTrigger>
               <TabsTrigger value="track">Meal Tracking</TabsTrigger>
+              <TabsTrigger value="history">History</TabsTrigger>
             </TabsList>
 
             <TabsContent value="planner" className="space-y-8">
@@ -362,6 +364,10 @@ const DietPlanner = () => {
                   />
                 </div>
               </div>
+            </TabsContent>
+
+            <TabsContent value="history">
+              <MealPlanHistory />
             </TabsContent>
           </Tabs>
         </div>

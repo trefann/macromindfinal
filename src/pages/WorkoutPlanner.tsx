@@ -9,15 +9,15 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, Loader2, Dumbbell, RefreshCw } from "lucide-react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { WorkoutTimer } from "@/components/workout-tracking/WorkoutTimer";
-import { SetLogger } from "@/components/workout-tracking/SetLogger";
 import { StrengthProgress } from "@/components/workout-tracking/StrengthProgress";
 import { AdaptiveProgressionEngine } from "@/components/workout-tracking/AdaptiveProgressionEngine";
+import { WorkoutSession } from "@/components/workout-tracking/WorkoutSession";
+import { WorkoutHistory } from "@/components/workout-tracking/WorkoutHistory";
 
 const WorkoutPlanner = () => {
   const [loading, setLoading] = useState(false);
   const [workoutPlan, setWorkoutPlan] = useState<any>(null);
-  const [exercises, setExercises] = useState<any[]>([]);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
@@ -52,14 +52,7 @@ const WorkoutPlanner = () => {
       if (error) throw error;
 
       setWorkoutPlan(data);
-      
-      // Load exercises for tracking
-      const { data: exerciseData } = await supabase
-        .from("exercises")
-        .select("*")
-        .limit(10);
-      
-      if (exerciseData) setExercises(exerciseData);
+      setSelectedDay(null);
 
       toast({
         title: "Success!",
@@ -90,9 +83,10 @@ const WorkoutPlanner = () => {
           </div>
 
           <Tabs defaultValue="planner" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsList className="grid w-full grid-cols-4 mb-8">
               <TabsTrigger value="planner">Plan Generator</TabsTrigger>
               <TabsTrigger value="track">Track Workout</TabsTrigger>
+              <TabsTrigger value="history">History</TabsTrigger>
               <TabsTrigger value="progress">Progress</TabsTrigger>
             </TabsList>
 
@@ -323,20 +317,53 @@ const WorkoutPlanner = () => {
             </TabsContent>
 
             <TabsContent value="track" className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-1">
-                  <WorkoutTimer />
-                </div>
-                <div className="lg:col-span-2 space-y-6">
-                  {exercises.slice(0, 3).map((exercise) => (
-                    <SetLogger
-                      key={exercise.id}
-                      exerciseName={exercise.name}
-                      exerciseId={exercise.id}
-                    />
-                  ))}
-                </div>
-              </div>
+              {workoutPlan?.weekly_schedule ? (
+                selectedDay !== null ? (
+                  <WorkoutSession
+                    dayWorkout={workoutPlan.weekly_schedule[selectedDay - 1]}
+                    dayNumber={selectedDay}
+                    onSessionComplete={() => {
+                      setSelectedDay(null);
+                      toast({ title: "Great work! 💪" });
+                    }}
+                  />
+                ) : (
+                  <Card className="glass-card">
+                    <CardHeader>
+                      <CardTitle>Select a Workout Day</CardTitle>
+                      <CardDescription>Choose which day's workout you want to track</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {workoutPlan.weekly_schedule.map((day: any) => (
+                          <Button
+                            key={day.day}
+                            onClick={() => setSelectedDay(day.day)}
+                            variant="outline"
+                            className="h-24 flex flex-col items-center justify-center gap-2 hover:bg-primary/10 hover:border-primary/50 transition-all"
+                          >
+                            <div className="w-10 h-10 rounded-full bg-gradient-neon flex items-center justify-center text-white font-bold">
+                              {day.day}
+                            </div>
+                            <span className="text-sm font-semibold">{day.focus}</span>
+                          </Button>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              ) : (
+                <Card className="glass-card">
+                  <CardContent className="p-12 text-center">
+                    <Dumbbell className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground">Generate a workout plan first to start tracking</p>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+
+            <TabsContent value="history">
+              <WorkoutHistory />
             </TabsContent>
 
             <TabsContent value="progress" className="space-y-6">
