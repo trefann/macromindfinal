@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,23 +20,39 @@ import { MealPlanHistory } from "@/components/meal-tracking/MealPlanHistory";
 const DietPlanner = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [mealPlan, setMealPlan] = useState<any>(null);
+  const [mealPlan, setMealPlan] = useState<any>(() => {
+    const saved = localStorage.getItem('currentMealPlan');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState("planner");
   const [macroGoals] = useState({ calories: 2200, protein: 165, carbs: 220, fats: 65 });
   const { toast } = useToast();
   
-  const [formData, setFormData] = useState({
-    age: "",
-    gender: "",
-    height: "",
-    weight: "",
-    activityLevel: "",
-    goal: "",
-    medicalConditions: "",
-    cuisinePreference: "",
-    planDuration: "1"
+  const [formData, setFormData] = useState(() => {
+    const saved = localStorage.getItem('dietFormData');
+    return saved ? JSON.parse(saved) : {
+      age: "",
+      gender: "",
+      height: "",
+      weight: "",
+      activityLevel: "",
+      goal: "",
+      medicalConditions: "",
+      cuisinePreference: "",
+      planDuration: "1"
+    };
   });
+
+  useEffect(() => {
+    if (mealPlan) {
+      localStorage.setItem('currentMealPlan', JSON.stringify(mealPlan));
+    }
+  }, [mealPlan]);
+
+  useEffect(() => {
+    localStorage.setItem('dietFormData', JSON.stringify(formData));
+  }, [formData]);
 
   const generatePlan = async () => {
     if (!formData.age || !formData.gender || !formData.height || !formData.weight || 
@@ -384,6 +400,7 @@ const DietPlanner = () => {
                         <Button
                           onClick={() => {
                             setMealPlan(null);
+                            localStorage.removeItem('currentMealPlan');
                             setFormData({
                               age: "",
                               gender: "",
@@ -395,6 +412,17 @@ const DietPlanner = () => {
                               cuisinePreference: "",
                               planDuration: "1"
                             });
+                            localStorage.setItem('dietFormData', JSON.stringify({
+                              age: "",
+                              gender: "",
+                              height: "",
+                              weight: "",
+                              activityLevel: "",
+                              goal: "",
+                              medicalConditions: "",
+                              cuisinePreference: "",
+                              planDuration: "1"
+                            }));
                           }}
                           variant="outline"
                           size="lg"
