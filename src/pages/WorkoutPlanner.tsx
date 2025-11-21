@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,18 +17,34 @@ import { WorkoutHistory } from "@/components/workout-tracking/WorkoutHistory";
 const WorkoutPlanner = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [workoutPlan, setWorkoutPlan] = useState<any>(null);
+  const [workoutPlan, setWorkoutPlan] = useState<any>(() => {
+    const saved = localStorage.getItem('currentWorkoutPlan');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState("planner");
   const { toast } = useToast();
   
-  const [formData, setFormData] = useState({
-    age: "",
-    gender: "",
-    fitnessGoal: "",
-    equipment: "",
-    daysPerWeek: ""
+  const [formData, setFormData] = useState(() => {
+    const saved = localStorage.getItem('workoutFormData');
+    return saved ? JSON.parse(saved) : {
+      age: "",
+      gender: "",
+      fitnessGoal: "",
+      equipment: "",
+      daysPerWeek: ""
+    };
   });
+
+  useEffect(() => {
+    if (workoutPlan) {
+      localStorage.setItem('currentWorkoutPlan', JSON.stringify(workoutPlan));
+    }
+  }, [workoutPlan]);
+
+  useEffect(() => {
+    localStorage.setItem('workoutFormData', JSON.stringify(formData));
+  }, [formData]);
 
   const generatePlan = async () => {
     if (!formData.age || !formData.gender || !formData.fitnessGoal || 
@@ -369,6 +385,7 @@ const WorkoutPlanner = () => {
                       <Button
                         onClick={() => {
                           setWorkoutPlan(null);
+                          localStorage.removeItem('currentWorkoutPlan');
                           setFormData({
                             age: "",
                             gender: "",
@@ -376,6 +393,13 @@ const WorkoutPlanner = () => {
                             equipment: "",
                             daysPerWeek: ""
                           });
+                          localStorage.setItem('workoutFormData', JSON.stringify({
+                            age: "",
+                            gender: "",
+                            fitnessGoal: "",
+                            equipment: "",
+                            daysPerWeek: ""
+                          }));
                         }}
                         variant="outline"
                         size="lg"
