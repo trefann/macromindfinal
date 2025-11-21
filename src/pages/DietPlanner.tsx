@@ -19,6 +19,7 @@ import { MealPlanHistory } from "@/components/meal-tracking/MealPlanHistory";
 
 const DietPlanner = () => {
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [mealPlan, setMealPlan] = useState<any>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState("planner");
@@ -75,6 +76,40 @@ const DietPlanner = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const savePlanToHistory = async () => {
+    if (!mealPlan) return;
+
+    setSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { error } = await supabase.from("meal_plans").insert({
+        user_id: user.id,
+        meals: mealPlan.meals,
+        total_calories: mealPlan.total_calories,
+        total_protein: mealPlan.total_protein,
+        total_carbs: mealPlan.total_carbs,
+        total_fats: mealPlan.total_fats
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Plan Saved!",
+        description: "Your meal plan has been saved to history.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save meal plan",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -321,6 +356,21 @@ const DietPlanner = () => {
                   <Card className="glass-card border-primary/30">
                     <CardContent className="pt-6">
                       <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <Button
+                          onClick={savePlanToHistory}
+                          disabled={saving}
+                          size="lg"
+                          className="bg-gradient-neon hover:opacity-90"
+                        >
+                          {saving ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Saving...
+                            </>
+                          ) : (
+                            "Save Plan to History"
+                          )}
+                        </Button>
                         <Button
                           onClick={generatePlan}
                           variant="outline"
