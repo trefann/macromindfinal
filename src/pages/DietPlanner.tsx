@@ -21,6 +21,7 @@ const DietPlanner = () => {
   const [loading, setLoading] = useState(false);
   const [mealPlan, setMealPlan] = useState<any>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [activeTab, setActiveTab] = useState("planner");
   const [macroGoals] = useState({ calories: 2200, protein: 165, carbs: 220, fats: 65 });
   const { toast } = useToast();
   
@@ -90,7 +91,7 @@ const DietPlanner = () => {
             </p>
           </div>
 
-          <Tabs defaultValue="planner" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3 mb-8">
               <TabsTrigger value="planner">Plan Generator</TabsTrigger>
               <TabsTrigger value="track">Meal Tracking</TabsTrigger>
@@ -248,22 +249,8 @@ const DietPlanner = () => {
                 <div className="space-y-6">
                   <Card className="glass-card">
                     <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle>Your Meal Plan</CardTitle>
-                          <CardDescription>{formData.planDuration === "1" ? "1-Day" : "7-Day"} Plan</CardDescription>
-                        </div>
-                        <Button
-                          onClick={generatePlan}
-                          variant="outline"
-                          size="sm"
-                          disabled={loading}
-                          className="border-primary/50 hover:bg-primary/10"
-                        >
-                          <RefreshCw className="mr-2 h-4 w-4" />
-                          Regenerate
-                        </Button>
-                      </div>
+                      <CardTitle>Your Meal Plan</CardTitle>
+                      <CardDescription>{formData.planDuration === "1" ? "1-Day" : "7-Day"} Plan</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -330,6 +317,45 @@ const DietPlanner = () => {
                       </CardContent>
                     </Card>
                   ))}
+
+                  <Card className="glass-card border-primary/30">
+                    <CardContent className="pt-6">
+                      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <Button
+                          onClick={generatePlan}
+                          variant="outline"
+                          size="lg"
+                          disabled={loading}
+                          className="border-primary/50 hover:bg-primary/10 transition-all"
+                        >
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          Re-Generate Plan
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            setMealPlan(null);
+                            setFormData({
+                              age: "",
+                              gender: "",
+                              height: "",
+                              weight: "",
+                              activityLevel: "",
+                              goal: "",
+                              medicalConditions: "",
+                              cuisinePreference: "",
+                              planDuration: "1"
+                            });
+                          }}
+                          variant="outline"
+                          size="lg"
+                          className="border-secondary/50 hover:bg-secondary/10 transition-all"
+                        >
+                          <Sparkles className="mr-2 h-4 w-4" />
+                          Create New Plan
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               )}
             </TabsContent>
