@@ -18,6 +18,7 @@ const WorkoutPlanner = () => {
   const [loading, setLoading] = useState(false);
   const [workoutPlan, setWorkoutPlan] = useState<any>(null);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState("planner");
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
@@ -82,7 +83,7 @@ const WorkoutPlanner = () => {
             </p>
           </div>
 
-          <Tabs defaultValue="planner" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-4 mb-8">
               <TabsTrigger value="planner">Plan Generator</TabsTrigger>
               <TabsTrigger value="track">Track Workout</TabsTrigger>
@@ -195,31 +196,20 @@ const WorkoutPlanner = () => {
               </Card>
 
               {workoutPlan && (
-                <Card className="glass-card">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-2xl mb-2">{workoutPlan.name}</CardTitle>
-                        <CardDescription>{workoutPlan.description}</CardDescription>
-                      </div>
-                      <div className="flex items-center gap-4">
+                <>
+                  <Card className="glass-card">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <CardTitle className="text-2xl mb-2">{workoutPlan.name}</CardTitle>
+                          <CardDescription>{workoutPlan.description}</CardDescription>
+                        </div>
                         <div className="text-right">
                           <p className="text-2xl font-bold text-primary">{workoutPlan.duration_minutes}</p>
                           <p className="text-sm text-muted-foreground">min/day</p>
                         </div>
-                        <Button
-                          onClick={generatePlan}
-                          variant="outline"
-                          size="sm"
-                          disabled={loading}
-                          className="border-primary/50 hover:bg-primary/10"
-                        >
-                          <RefreshCw className="mr-2 h-4 w-4" />
-                          Regenerate
-                        </Button>
                       </div>
-                    </div>
-                  </CardHeader>
+                    </CardHeader>
                   <CardContent>
                     {workoutPlan.weekly_schedule ? (
                       <div className="space-y-6">
@@ -313,6 +303,42 @@ const WorkoutPlanner = () => {
                     )}
                   </CardContent>
                 </Card>
+
+                <Card className="glass-card border-primary/30">
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                      <Button
+                        onClick={generatePlan}
+                        variant="outline"
+                        size="lg"
+                        disabled={loading}
+                        className="border-primary/50 hover:bg-primary/10 transition-all"
+                      >
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Re-Generate Plan
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setWorkoutPlan(null);
+                          setFormData({
+                            age: "",
+                            gender: "",
+                            fitnessGoal: "",
+                            equipment: "",
+                            daysPerWeek: ""
+                          });
+                        }}
+                        variant="outline"
+                        size="lg"
+                        className="border-secondary/50 hover:bg-secondary/10 transition-all"
+                      >
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Create New Plan
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
               )}
             </TabsContent>
 
