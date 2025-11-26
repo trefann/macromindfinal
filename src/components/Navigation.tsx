@@ -15,9 +15,7 @@ const Navigation = () => {
     { to: "/dashboard", icon: LayoutDashboard, label: "Home" },
     { to: "/diet-planner", icon: Utensils, label: "Diet" },
     { to: "/workout-planner", icon: Dumbbell, label: "Workout" },
-    { to: "/meal-tracking", icon: Utensils, label: "Meals" },
     { to: "/form-checker", icon: Video, label: "Form" },
-    { to: "/progress", icon: TrendingUp, label: "Progress" },
     { to: "/coach", icon: MessageSquare, label: "AI Coach" },
     { to: "/settings", icon: Settings, label: "Settings" },
   ];
