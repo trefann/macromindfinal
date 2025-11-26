@@ -341,44 +341,104 @@ export type Database = {
         Row: {
           activity_level: string | null
           age: number | null
+          ai_adaptivity_mode: string | null
+          allergies: string | null
+          auto_optimize_enabled: boolean | null
+          available_equipment: string[] | null
+          body_fat_percentage: number | null
           created_at: string | null
+          dietary_preference: string | null
+          experience_level: string | null
+          favorite_foods: string | null
           fitness_goal: string | null
+          food_dislikes: string | null
           full_name: string | null
           gender: string | null
           height_cm: number | null
           id: string
+          injury_history: string | null
+          last_weight_update: string | null
+          meal_reminders: boolean | null
           medical_conditions: string | null
           preferred_cuisine: string | null
+          progress_reminders: boolean | null
+          push_notifications: boolean | null
+          target_muscle_groups: string[] | null
+          theme_preference: string | null
           updated_at: string | null
+          water_reminders: boolean | null
           weight_kg: number | null
+          workout_duration_preference: number | null
+          workout_location: string | null
+          workout_reminders: boolean | null
         }
         Insert: {
           activity_level?: string | null
           age?: number | null
+          ai_adaptivity_mode?: string | null
+          allergies?: string | null
+          auto_optimize_enabled?: boolean | null
+          available_equipment?: string[] | null
+          body_fat_percentage?: number | null
           created_at?: string | null
+          dietary_preference?: string | null
+          experience_level?: string | null
+          favorite_foods?: string | null
           fitness_goal?: string | null
+          food_dislikes?: string | null
           full_name?: string | null
           gender?: string | null
           height_cm?: number | null
           id: string
+          injury_history?: string | null
+          last_weight_update?: string | null
+          meal_reminders?: boolean | null
           medical_conditions?: string | null
           preferred_cuisine?: string | null
+          progress_reminders?: boolean | null
+          push_notifications?: boolean | null
+          target_muscle_groups?: string[] | null
+          theme_preference?: string | null
           updated_at?: string | null
+          water_reminders?: boolean | null
           weight_kg?: number | null
+          workout_duration_preference?: number | null
+          workout_location?: string | null
+          workout_reminders?: boolean | null
         }
         Update: {
           activity_level?: string | null
           age?: number | null
+          ai_adaptivity_mode?: string | null
+          allergies?: string | null
+          auto_optimize_enabled?: boolean | null
+          available_equipment?: string[] | null
+          body_fat_percentage?: number | null
           created_at?: string | null
+          dietary_preference?: string | null
+          experience_level?: string | null
+          favorite_foods?: string | null
           fitness_goal?: string | null
+          food_dislikes?: string | null
           full_name?: string | null
           gender?: string | null
           height_cm?: number | null
           id?: string
+          injury_history?: string | null
+          last_weight_update?: string | null
+          meal_reminders?: boolean | null
           medical_conditions?: string | null
           preferred_cuisine?: string | null
+          progress_reminders?: boolean | null
+          push_notifications?: boolean | null
+          target_muscle_groups?: string[] | null
+          theme_preference?: string | null
           updated_at?: string | null
+          water_reminders?: boolean | null
           weight_kg?: number | null
+          workout_duration_preference?: number | null
+          workout_location?: string | null
+          workout_reminders?: boolean | null
         }
         Relationships: []
       }

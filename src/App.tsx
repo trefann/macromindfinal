@@ -9,7 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import AICoach from "./pages/AICoach";
 import Progress from "./pages/Progress";
 import FormChecker from "./pages/FormChecker";
-import ProfileSetup from "./pages/ProfileSetup";
+import Settings from "./pages/Settings";
 import DietPlanner from "./pages/DietPlanner";
 import WorkoutPlanner from "./pages/WorkoutPlanner";
 import MealTracking from "./pages/MealTracking";
@@ -32,7 +32,7 @@ const App = () => (
           <Route path="/coach" element={<AICoach />} />
           <Route path="/progress" element={<Progress />} />
           <Route path="/form-checker" element={<FormChecker />} />
-          <Route path="/profile" element={<ProfileSetup />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/diet-planner" element={<DietPlanner />} />
           <Route path="/workout-planner" element={<WorkoutPlanner />} />
           <Route path="/meal-tracking" element={<MealTracking />} />
