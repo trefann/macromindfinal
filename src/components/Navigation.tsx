@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, MessageSquare, TrendingUp, Video, User, LogOut, Dumbbell, Utensils } from "lucide-react";
+import { LayoutDashboard, MessageSquare, TrendingUp, Video, Settings, LogOut, Dumbbell, Utensils } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "./ui/button";
 
@@ -19,7 +19,7 @@ const Navigation = () => {
     { to: "/form-checker", icon: Video, label: "Form" },
     { to: "/progress", icon: TrendingUp, label: "Progress" },
     { to: "/coach", icon: MessageSquare, label: "AI Coach" },
-    { to: "/profile", icon: User, label: "Profile" },
+    { to: "/settings", icon: Settings, label: "Settings" },
   ];
 
   return (
