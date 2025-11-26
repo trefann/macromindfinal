@@ -7,12 +7,10 @@ import Navigation from "./components/Navigation";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import AICoach from "./pages/AICoach";
-import Progress from "./pages/Progress";
 import FormChecker from "./pages/FormChecker";
 import Settings from "./pages/Settings";
 import DietPlanner from "./pages/DietPlanner";
 import WorkoutPlanner from "./pages/WorkoutPlanner";
-import MealTracking from "./pages/MealTracking";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -30,12 +28,10 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/coach" element={<AICoach />} />
-          <Route path="/progress" element={<Progress />} />
           <Route path="/form-checker" element={<FormChecker />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/diet-planner" element={<DietPlanner />} />
           <Route path="/workout-planner" element={<WorkoutPlanner />} />
-          <Route path="/meal-tracking" element={<MealTracking />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
