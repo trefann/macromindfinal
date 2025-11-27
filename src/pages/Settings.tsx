@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Settings as SettingsIcon } from "lucide-react";
+import { ThemeSelector } from "@/components/ThemeSelector";
+import { Separator } from "@/components/ui/separator";
 
 export default function Settings() {
   const { user } = useAuth();
@@ -108,6 +110,20 @@ export default function Settings() {
           </p>
         </div>
 
+        {/* Theme Selector Section */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Theme</CardTitle>
+            <CardDescription>Customize the look and feel of your app</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ThemeSelector />
+          </CardContent>
+        </Card>
+
+        <Separator className="my-6" />
+
+        {/* Personal Information Section */}
         <form onSubmit={handleSubmit}>
           <Card>
             <CardHeader>
