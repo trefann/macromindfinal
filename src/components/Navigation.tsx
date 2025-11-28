@@ -21,14 +21,11 @@ const Navigation = () => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-card">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link to={user ? "/dashboard" : "/"} className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-neon flex items-center justify-center">
-              <span className="text-lg font-bold">M</span>
-            </div>
-            <span className="text-xl font-bold gradient-text">Macromind</span>
+          <Link to={user ? "/dashboard" : "/"} className="flex items-center">
+            <span className="text-xl font-bold text-primary">Macromind</span>
           </Link>
 
           <div className="hidden md:flex items-center space-x-1">
@@ -41,8 +38,8 @@ const Navigation = () => {
                   to={link.to}
                   className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
                     isActive
-                      ? "bg-gradient-neon text-white"
-                      : "hover:bg-white/10 text-muted-foreground hover:text-foreground"
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-accent text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -65,7 +62,7 @@ const Navigation = () => {
 
           {/* Mobile menu - simplified for now */}
           <div className="md:hidden">
-            <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+            <button className="p-2 hover:bg-accent rounded-lg transition-colors text-foreground">
               <svg
                 className="w-6 h-6"
                 fill="none"
