@@ -75,8 +75,8 @@ const Dashboard = () => {
         <div className="container mx-auto px-4 max-w-7xl">
           {/* Welcome Header */}
           <div className="mb-8 animate-fade-in">
-            <h1 className="text-4xl md:text-5xl font-bold mb-2">
-              {greeting}, <span className="gradient-text">{userName}</span> 👋
+            <h1 className="text-4xl md:text-5xl font-bold mb-2 text-foreground">
+              {greeting}, <span className="text-primary">{userName}</span> 👋
             </h1>
             <p className="text-lg text-muted-foreground">
               Stay consistent. Progress builds discipline.
