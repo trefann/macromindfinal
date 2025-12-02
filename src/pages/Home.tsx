@@ -54,14 +54,13 @@ const Home = () => {
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
         {/* Hero background image */}
         <div 
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-center opacity-40"
           style={{ 
-            backgroundImage: `url(${heroFitness})`,
-            filter: 'brightness(0.4)'
+            backgroundImage: `url(${heroFitness})`
           }}
         />
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-primary/20 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background/80 via-primary/20 to-background/80" />
         
         <div className="container mx-auto px-4 relative z-10">
           <div ref={heroRef} className="text-center space-y-8 max-w-4xl mx-auto">
@@ -85,7 +84,7 @@ const Home = () => {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="glass hover:bg-white/20 text-lg px-8 py-6 rounded-2xl border-2"
+                  className="glass hover:bg-accent/50 text-lg px-8 py-6 rounded-2xl border-2"
                 >
                   Talk to AI Coach
                 </Button>
@@ -94,7 +93,7 @@ const Home = () => {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="glass hover:bg-white/20 text-lg px-8 py-6 rounded-2xl border-2"
+                  className="glass hover:bg-accent/50 text-lg px-8 py-6 rounded-2xl border-2"
                 >
                   Track Progress
                 </Button>
