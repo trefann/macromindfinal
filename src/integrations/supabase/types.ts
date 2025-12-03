@@ -347,6 +347,7 @@ export type Database = {
           available_equipment: string[] | null
           body_fat_percentage: number | null
           created_at: string | null
+          custom_theme_colors: Json | null
           dietary_preference: string | null
           experience_level: string | null
           favorite_foods: string | null
@@ -381,6 +382,7 @@ export type Database = {
           available_equipment?: string[] | null
           body_fat_percentage?: number | null
           created_at?: string | null
+          custom_theme_colors?: Json | null
           dietary_preference?: string | null
           experience_level?: string | null
           favorite_foods?: string | null
@@ -415,6 +417,7 @@ export type Database = {
           available_equipment?: string[] | null
           body_fat_percentage?: number | null
           created_at?: string | null
+          custom_theme_colors?: Json | null
           dietary_preference?: string | null
           experience_level?: string | null
           favorite_foods?: string | null

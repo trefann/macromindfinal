@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useTheme, ThemeName } from "@/contexts/ThemeContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, Monitor, Sun, Moon, Zap, Droplet, Sparkles, Accessibility } from "lucide-react";
+import { Check, Monitor, Sun, Moon, Zap, Droplet, Sparkles, Accessibility, Palette } from "lucide-react";
 import { toast } from "sonner";
+import { CustomThemeEditor, defaultCustomColors } from "./CustomThemeEditor";
 
 interface ThemeOption {
   name: ThemeName;
@@ -118,11 +119,18 @@ const themes: ThemeOption[] = [
 ];
 
 export const ThemeSelector = () => {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, customColors, setCustomColors, applyCustomTheme } = useTheme();
   const [isUpdating, setIsUpdating] = useState(false);
+  const [showCustomEditor, setShowCustomEditor] = useState(theme === "custom");
 
   const handleThemeChange = async (newTheme: ThemeName) => {
+    if (newTheme === "custom") {
+      setShowCustomEditor(true);
+      return;
+    }
+    
     setIsUpdating(true);
+    setShowCustomEditor(false);
     try {
       await setTheme(newTheme);
       toast.success("Theme updated successfully!");
@@ -131,6 +139,23 @@ export const ThemeSelector = () => {
     } finally {
       setIsUpdating(false);
     }
+  };
+
+  const handleApplyCustomTheme = async () => {
+    setIsUpdating(true);
+    try {
+      await applyCustomTheme();
+      toast.success("Custom theme applied!");
+    } catch (error) {
+      toast.error("Failed to save custom theme");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleResetCustomColors = () => {
+    setCustomColors(defaultCustomColors);
+    toast.info("Colors reset to defaults");
   };
 
   return (
@@ -142,43 +167,44 @@ export const ThemeSelector = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Preset Themes Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
         {themes.map((themeOption) => {
           const isActive = theme === themeOption.name;
           
           return (
             <Card
               key={themeOption.name}
-              className={`cursor-pointer transition-all hover:scale-105 ${
+              className={`cursor-pointer transition-all hover:scale-[1.02] ${
                 isActive ? "ring-2 ring-primary shadow-lg" : ""
               }`}
               onClick={() => handleThemeChange(themeOption.name)}
             >
-              <CardContent className="p-4">
-                <div className="space-y-3">
+              <CardContent className="p-2 sm:p-4">
+                <div className="space-y-2 sm:space-y-3">
                   {/* Preview */}
-                  <div className={`h-24 rounded-lg ${themeOption.preview.background} p-3 space-y-2`}>
-                    <div className={`h-8 rounded ${themeOption.preview.card} ${themeOption.preview.text} flex items-center px-2 text-xs font-medium`}>
+                  <div className={`h-16 sm:h-24 rounded-lg ${themeOption.preview.background} p-2 sm:p-3 space-y-1 sm:space-y-2`}>
+                    <div className={`h-5 sm:h-8 rounded ${themeOption.preview.card} ${themeOption.preview.text} flex items-center px-1 sm:px-2 text-[10px] sm:text-xs font-medium`}>
                       Nav Bar
                     </div>
-                    <div className="flex gap-2">
-                      <div className={`flex-1 h-3 rounded ${themeOption.preview.card}`} />
-                      <div className={`w-12 h-3 rounded ${themeOption.preview.accent}`} />
+                    <div className="flex gap-1 sm:gap-2">
+                      <div className={`flex-1 h-2 sm:h-3 rounded ${themeOption.preview.card}`} />
+                      <div className={`w-8 sm:w-12 h-2 sm:h-3 rounded ${themeOption.preview.accent}`} />
                     </div>
                   </div>
 
                   {/* Theme Info */}
-                  <div className="space-y-1">
+                  <div className="space-y-0.5 sm:space-y-1">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {themeOption.icon}
-                        <span className="font-medium text-sm">{themeOption.label}</span>
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        <span className="[&>svg]:h-3 [&>svg]:w-3 sm:[&>svg]:h-5 sm:[&>svg]:w-5">{themeOption.icon}</span>
+                        <span className="font-medium text-xs sm:text-sm truncate">{themeOption.label}</span>
                       </div>
                       {isActive && (
-                        <Check className="h-4 w-4 text-primary" />
+                        <Check className="h-3 w-3 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-2">
                       {themeOption.description}
                     </p>
                   </div>
@@ -187,7 +213,7 @@ export const ThemeSelector = () => {
                   <Button
                     variant={isActive ? "default" : "outline"}
                     size="sm"
-                    className="w-full"
+                    className="w-full h-7 sm:h-9 text-xs sm:text-sm"
                     disabled={isUpdating}
                   >
                     {isActive ? "Active" : "Apply"}
@@ -197,7 +223,72 @@ export const ThemeSelector = () => {
             </Card>
           );
         })}
+
+        {/* Custom Theme Card */}
+        <Card
+          className={`cursor-pointer transition-all hover:scale-[1.02] ${
+            theme === "custom" ? "ring-2 ring-primary shadow-lg" : ""
+          }`}
+          onClick={() => setShowCustomEditor(!showCustomEditor)}
+        >
+          <CardContent className="p-2 sm:p-4">
+            <div className="space-y-2 sm:space-y-3">
+              {/* Preview with custom colors */}
+              <div 
+                className="h-16 sm:h-24 rounded-lg p-2 sm:p-3 space-y-1 sm:space-y-2"
+                style={{ background: `linear-gradient(135deg, ${customColors.background}, ${customColors.card})` }}
+              >
+                <div 
+                  className="h-5 sm:h-8 rounded flex items-center px-1 sm:px-2 text-[10px] sm:text-xs font-medium"
+                  style={{ backgroundColor: customColors.card, color: customColors.cardForeground }}
+                >
+                  Nav Bar
+                </div>
+                <div className="flex gap-1 sm:gap-2">
+                  <div className="flex-1 h-2 sm:h-3 rounded" style={{ backgroundColor: customColors.card }} />
+                  <div className="w-8 sm:w-12 h-2 sm:h-3 rounded" style={{ backgroundColor: customColors.primary }} />
+                </div>
+              </div>
+
+              {/* Theme Info */}
+              <div className="space-y-0.5 sm:space-y-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <Palette className="h-3 w-3 sm:h-5 sm:w-5" />
+                    <span className="font-medium text-xs sm:text-sm">Custom Theme</span>
+                  </div>
+                  {theme === "custom" && (
+                    <Check className="h-3 w-3 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
+                  )}
+                </div>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">
+                  Create your own color scheme
+                </p>
+              </div>
+
+              {/* Edit Button */}
+              <Button
+                variant={theme === "custom" ? "default" : "outline"}
+                size="sm"
+                className="w-full h-7 sm:h-9 text-xs sm:text-sm"
+                disabled={isUpdating}
+              >
+                {showCustomEditor ? "Editing..." : theme === "custom" ? "Active" : "Customize"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Custom Theme Editor */}
+      {showCustomEditor && (
+        <CustomThemeEditor
+          colors={customColors}
+          onChange={setCustomColors}
+          onApply={handleApplyCustomTheme}
+          onReset={handleResetCustomColors}
+        />
+      )}
     </div>
   );
 };
