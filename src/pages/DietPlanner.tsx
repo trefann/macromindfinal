@@ -133,20 +133,20 @@ const DietPlanner = () => {
     <ProtectedRoute>
       <div className="min-h-screen pt-24 pb-16 px-4">
         <div className="container mx-auto max-w-7xl">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4">
+          <div className="text-center mb-8 sm:mb-12">
+            <h1 className="text-3xl sm:text-4xl font-bold mb-4">
               AI <span className="gradient-text">Diet Planner</span>
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm sm:text-base">
               Get a personalized meal plan and track your nutrition
             </p>
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
-              <TabsTrigger value="planner">Plan Generator</TabsTrigger>
-              <TabsTrigger value="track">Meal Tracking</TabsTrigger>
-              <TabsTrigger value="history">History</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 mb-8 h-auto">
+              <TabsTrigger value="planner" className="text-xs sm:text-sm py-2 sm:py-3">Plan Generator</TabsTrigger>
+              <TabsTrigger value="track" className="text-xs sm:text-sm py-2 sm:py-3">Meal Tracking</TabsTrigger>
+              <TabsTrigger value="history" className="text-xs sm:text-sm py-2 sm:py-3">History</TabsTrigger>
             </TabsList>
 
             <TabsContent value="planner" className="space-y-8">
