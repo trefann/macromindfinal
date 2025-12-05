@@ -29,57 +29,76 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const { age, gender, fitnessGoal, equipment, daysPerWeek } = body;
+    const { 
+      goal, 
+      split, 
+      personalization 
+    } = body;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Create workout split based on days per week
-    const splitMap: any = {
-      3: ['Full Body', 'Full Body', 'Full Body'],
-      4: ['Upper Body', 'Lower Body', 'Upper Body', 'Lower Body'],
-      5: ['Push', 'Pull', 'Legs', 'Upper Body', 'Core & Cardio'],
-      6: ['Push', 'Pull', 'Legs', 'Push', 'Pull', 'Legs'],
-      7: ['Push', 'Pull', 'Legs', 'Upper Body', 'Lower Body', 'Full Body', 'Active Recovery']
-    };
+    console.log("Generating workout plan for:", { goal, splitName: split?.name, personalization });
 
-    const split = splitMap[daysPerWeek] || splitMap[3];
-    
-    const prompt = `Generate a ${daysPerWeek}-day weekly workout split for:
-    - Age: ${age}
-    - Gender: ${gender}
-    - Fitness Goal: ${fitnessGoal}
-    - Equipment Available: ${equipment}
-    
-    Create ${daysPerWeek} different workouts following this split: ${split.join(', ')}
-    Each day should focus on its designated muscle groups with appropriate rest days built in.
-    
-    Return a JSON object with this exact structure:
+    const prompt = `Generate a comprehensive ${split.daysPerWeek}-day weekly workout plan with these specifications:
+
+GOAL: ${goal}
+WORKOUT SPLIT: ${split.name}
+SCHEDULE: ${split.schedule.join(', ')}
+
+USER PROFILE:
+- Age: ${personalization.age}
+- Gender: ${personalization.gender}
+- Training Location: ${personalization.location}
+- Available Equipment: ${personalization.equipment.join(', ')}
+- Time Per Session: ${personalization.timePerSession} minutes
+- Experience Level: ${personalization.experienceLevel}
+${personalization.injuries ? `- Injury Restrictions: ${personalization.injuries}` : ''}
+${personalization.preferredExercises ? `- Preferred Exercises: ${personalization.preferredExercises}` : ''}
+
+REQUIREMENTS:
+1. Create exactly ${split.daysPerWeek} different workout days following the split: ${split.schedule.join(', ')}
+2. Each day should have 4-6 exercises appropriate for the focus
+3. Include compound movements first, then isolation exercises
+4. Adjust volume and intensity based on the ${goal} goal
+5. Consider the available equipment: ${personalization.equipment.join(', ')}
+6. Respect any injury restrictions mentioned
+7. Include any preferred exercises if they fit the day's focus
+8. Provide clear instructions for each exercise
+
+Return a JSON object with this EXACT structure:
+{
+  "name": "${split.name} - ${goal.charAt(0).toUpperCase() + goal.slice(1)} Program",
+  "description": "A ${split.daysPerWeek}-day ${split.name} program optimized for ${goal}",
+  "duration_minutes": ${personalization.timePerSession},
+  "weekly_schedule": [
     {
-      "name": "${daysPerWeek}-Day ${fitnessGoal} Program",
-      "description": "Balanced weekly split with optimal rest and recovery",
-      "duration_minutes": 50,
-      "weekly_schedule": [
+      "day": 1,
+      "focus": "${split.schedule[0]}",
+      "exercises": [
         {
-          "day": 1,
-          "focus": "${split[0]}",
-          "exercises": [
-            {
-              "name": "Exercise name",
-              "sets": 3,
-              "reps": 10,
-              "muscle_group": "Target muscles",
-              "rest_seconds": 90,
-              "instructions": "Brief form cues"
-            }
-          ]
+          "name": "Exercise Name",
+          "sets": 4,
+          "reps": "8-12",
+          "rest_seconds": 90,
+          "muscle_group": "Target Muscle",
+          "instructions": "Brief form cues and tips"
         }
       ]
     }
-    
-    Ensure each day has 4-6 exercises appropriate for the split focus.`;
+  ],
+  "progression": {
+    "week1": "Foundation - Focus on form and moderate weights",
+    "week2": "Volume increase - Add 1 set or 2-3 reps per exercise",
+    "week3": "Intensity increase - Add 2.5-5kg to main lifts",
+    "week4": "Deload - Reduce volume by 40%, focus on recovery"
+  }
+}
+
+Ensure each day in weekly_schedule follows the corresponding focus from the schedule array.
+Include ${split.daysPerWeek} complete workout days with full exercise details.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -90,13 +109,18 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are a fitness expert. Always respond with valid JSON only." },
+          { 
+            role: "system", 
+            content: "You are an expert strength and conditioning coach with deep knowledge of exercise science, periodization, and program design. Always respond with valid JSON only, no markdown formatting." 
+          },
           { role: "user", content: prompt }
         ],
       }),
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("AI gateway error:", response.status, errorText);
       throw new Error("Failed to generate workout plan");
     }
 
@@ -106,9 +130,11 @@ serve(async (req) => {
     // Strip markdown code fences if present
     content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     
+    console.log("Generated plan content length:", content.length);
+    
     const workoutPlan = JSON.parse(content);
 
-    // Save the workout plan
+    // Save the workout plan to the database
     const { error: insertError } = await supabase
       .from('workout_plans')
       .insert({
@@ -116,10 +142,13 @@ serve(async (req) => {
         name: workoutPlan.name,
         description: workoutPlan.description,
         duration_minutes: workoutPlan.duration_minutes,
-        exercises: workoutPlan.weekly_schedule || workoutPlan.exercises,
+        exercises: workoutPlan.weekly_schedule,
       });
 
-    if (insertError) throw insertError;
+    if (insertError) {
+      console.error("Error saving workout plan:", insertError);
+      // Don't throw here, still return the plan to the user
+    }
 
     return new Response(JSON.stringify(workoutPlan), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
