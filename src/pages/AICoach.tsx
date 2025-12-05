@@ -45,7 +45,7 @@ const AICoach = () => {
 
         <div
           ref={chatContainerRef}
-          className="glass-card rounded-2xl p-6 h-[600px] flex flex-col"
+          className="glass-card rounded-2xl p-4 sm:p-6 h-[calc(100vh-280px)] min-h-[400px] max-h-[600px] flex flex-col"
         >
           {/* Messages */}
           <div className="flex-1 overflow-y-auto space-y-4 mb-4">
