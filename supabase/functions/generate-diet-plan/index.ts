@@ -1,10 +1,24 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const dietPlanRequestSchema = z.object({
+  age: z.number().int().min(13).max(120),
+  gender: z.enum(['male', 'female', 'other']),
+  height: z.number().min(50).max(300),
+  weight: z.number().min(20).max(500),
+  activityLevel: z.enum(['sedentary', 'lightly_active', 'moderately_active', 'very_active', 'extremely_active']),
+  goal: z.enum(['lose_weight', 'maintain_weight', 'gain_weight', 'build_muscle', 'improve_health']),
+  medicalConditions: z.string().max(500).optional().nullable(),
+  cuisinePreference: z.string().max(200).optional().nullable(),
+  planDuration: z.number().int().min(1).max(30).optional(),
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -14,7 +28,10 @@ serve(async (req) => {
   try {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error("Missing authorization header");
+      return new Response(JSON.stringify({ error: "Missing authorization header" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const supabase = createClient(
@@ -25,15 +42,33 @@ serve(async (req) => {
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      throw new Error("Unauthorized");
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const body = await req.json();
-    const { age, gender, height, weight, activityLevel, goal, medicalConditions, cuisinePreference, planDuration } = body;
+    // Validate input
+    const rawBody = await req.json();
+    const validation = dietPlanRequestSchema.safeParse(rawBody);
+    
+    if (!validation.success) {
+      console.error("Validation error:", validation.error.errors);
+      return new Response(JSON.stringify({ error: "Invalid request format" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { age, gender, height, weight, activityLevel, goal, medicalConditions, cuisinePreference } = validation.data;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      console.error("LOVABLE_API_KEY is not configured");
+      return new Response(JSON.stringify({ error: "Service configuration error" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const prompt = `Generate a personalized meal plan for a single day for:
@@ -102,7 +137,11 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to generate diet plan");
+      console.error("AI gateway error:", response.status);
+      return new Response(JSON.stringify({ error: "AI service temporarily unavailable" }), {
+        status: 502,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const data = await response.json();
@@ -124,7 +163,9 @@ serve(async (req) => {
         total_fats: mealPlan.total_fats,
       });
 
-    if (insertError) throw insertError;
+    if (insertError) {
+      console.error("Error saving meal plan:", insertError);
+    }
 
     return new Response(JSON.stringify(mealPlan), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -132,8 +173,7 @@ serve(async (req) => {
 
   } catch (error) {
     console.error("generate-diet-plan error:", error);
-    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    return new Response(JSON.stringify({ error: "An unexpected error occurred" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

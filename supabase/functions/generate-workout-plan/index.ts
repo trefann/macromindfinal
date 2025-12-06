@@ -1,10 +1,35 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schemas
+const splitSchema = z.object({
+  name: z.string().min(1).max(100),
+  daysPerWeek: z.number().int().min(1).max(7),
+  schedule: z.array(z.string().max(50)).min(1).max(7),
+});
+
+const personalizationSchema = z.object({
+  age: z.number().int().min(13).max(120),
+  gender: z.enum(['male', 'female', 'other']),
+  location: z.string().max(100),
+  equipment: z.array(z.string().max(50)).max(20),
+  timePerSession: z.number().int().min(10).max(180),
+  experienceLevel: z.enum(['beginner', 'intermediate', 'advanced']),
+  injuries: z.string().max(500).optional().nullable(),
+  preferredExercises: z.string().max(500).optional().nullable(),
+});
+
+const workoutPlanRequestSchema = z.object({
+  goal: z.enum(['fat_loss', 'bulking', 'maingaining', 'strength', 'endurance']),
+  split: splitSchema,
+  personalization: personalizationSchema,
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -14,7 +39,10 @@ serve(async (req) => {
   try {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error("Missing authorization header");
+      return new Response(JSON.stringify({ error: "Missing authorization header" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const supabase = createClient(
@@ -25,22 +53,36 @@ serve(async (req) => {
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      throw new Error("Unauthorized");
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const body = await req.json();
-    const { 
-      goal, 
-      split, 
-      personalization 
-    } = body;
+    // Validate input
+    const rawBody = await req.json();
+    const validation = workoutPlanRequestSchema.safeParse(rawBody);
+    
+    if (!validation.success) {
+      console.error("Validation error:", validation.error.errors);
+      return new Response(JSON.stringify({ error: "Invalid request format" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { goal, split, personalization } = validation.data;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      console.error("LOVABLE_API_KEY is not configured");
+      return new Response(JSON.stringify({ error: "Service configuration error" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    console.log("Generating workout plan for:", { goal, splitName: split?.name, personalization });
+    console.log("Generating workout plan for:", { goal, splitName: split.name, personalization });
 
     const prompt = `Generate a comprehensive ${split.daysPerWeek}-day weekly workout plan with these specifications:
 
@@ -119,9 +161,11 @@ Include ${split.daysPerWeek} complete workout days with full exercise details.`;
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error("Failed to generate workout plan");
+      console.error("AI gateway error:", response.status);
+      return new Response(JSON.stringify({ error: "AI service temporarily unavailable" }), {
+        status: 502,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const data = await response.json();
@@ -147,7 +191,6 @@ Include ${split.daysPerWeek} complete workout days with full exercise details.`;
 
     if (insertError) {
       console.error("Error saving workout plan:", insertError);
-      // Don't throw here, still return the plan to the user
     }
 
     return new Response(JSON.stringify(workoutPlan), {
@@ -156,8 +199,7 @@ Include ${split.daysPerWeek} complete workout days with full exercise details.`;
 
   } catch (error) {
     console.error("generate-workout-plan error:", error);
-    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    return new Response(JSON.stringify({ error: "An unexpected error occurred" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
