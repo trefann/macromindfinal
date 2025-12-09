@@ -1,1 +1,13 @@
 project_id = "daiinmpzotwozgbhnlpf"
+
+[functions.ai-chat]
+verify_jwt = true
+
+[functions.generate-diet-plan]
+verify_jwt = true
+
+[functions.generate-workout-plan]
+verify_jwt = true
+
+[functions.ai-workout-assist]
+verify_jwt = true

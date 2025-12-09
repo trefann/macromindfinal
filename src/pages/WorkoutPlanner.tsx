@@ -11,6 +11,7 @@ import { SplitSelection, WorkoutSplit } from "@/components/workout-planner/Split
 import { PersonalizationForm, PersonalizationData } from "@/components/workout-planner/PersonalizationForm";
 import { WorkoutPlanDisplay, WorkoutPlan } from "@/components/workout-planner/WorkoutPlanDisplay";
 import { WorkoutTracker } from "@/components/workout-planner/WorkoutTracker";
+import { CustomWorkoutBuilder, CustomWorkout } from "@/components/workout-planner/CustomWorkoutBuilder";
 
 type PlannerStep = "goal" | "split" | "personalize" | "plan";
 
@@ -212,9 +213,12 @@ const WorkoutPlanner = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-8 h-auto">
+            <TabsList className="grid w-full grid-cols-5 mb-8 h-auto">
               <TabsTrigger value="planner" className="text-[10px] sm:text-sm py-2 sm:py-3 px-1 sm:px-3">
-                Planner
+                AI Planner
+              </TabsTrigger>
+              <TabsTrigger value="custom" className="text-[10px] sm:text-sm py-2 sm:py-3 px-1 sm:px-3">
+                Create
               </TabsTrigger>
               <TabsTrigger value="track" className="text-[10px] sm:text-sm py-2 sm:py-3 px-1 sm:px-3">
                 Track
@@ -229,6 +233,18 @@ const WorkoutPlanner = () => {
 
             <TabsContent value="planner" className="space-y-8">
               {renderPlannerContent()}
+            </TabsContent>
+
+            <TabsContent value="custom">
+              <CustomWorkoutBuilder
+                onSave={(workout: CustomWorkout) => {
+                  toast({
+                    title: "Workout Created!",
+                    description: `${workout.name} has been saved.`,
+                  });
+                  setActiveTab("history");
+                }}
+              />
             </TabsContent>
 
             <TabsContent value="track">
