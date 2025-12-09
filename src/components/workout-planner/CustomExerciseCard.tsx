@@ -151,14 +151,14 @@ export const CustomExerciseCard = ({
                   <div>
                     <Label className="text-xs text-muted-foreground">Tempo</Label>
                     <Select
-                      value={exercise.tempo || ""}
-                      onValueChange={(v) => onUpdate({ tempo: v || undefined })}
+                      value={exercise.tempo || "none"}
+                      onValueChange={(v) => onUpdate({ tempo: v === "none" ? undefined : v })}
                     >
                       <SelectTrigger className="h-9">
                         <SelectValue placeholder="Select tempo" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">None</SelectItem>
+                        <SelectItem value="none">None</SelectItem>
                         {TEMPO_OPTIONS.map(tempo => (
                           <SelectItem key={tempo} value={tempo}>
                             {tempo}
