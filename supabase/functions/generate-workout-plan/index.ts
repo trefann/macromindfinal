@@ -176,7 +176,51 @@ Include ${split.daysPerWeek} complete workout days with full exercise details.`;
     
     console.log("Generated plan content length:", content.length);
     
-    const workoutPlan = JSON.parse(content);
+    let workoutPlan = JSON.parse(content);
+
+    // Validate and normalize the workout plan structure
+    if (!workoutPlan.weekly_schedule || !Array.isArray(workoutPlan.weekly_schedule)) {
+      console.error("Invalid weekly_schedule structure:", typeof workoutPlan.weekly_schedule);
+      throw new Error("AI returned invalid plan structure");
+    }
+
+    // Ensure each day's exercises is an array
+    workoutPlan.weekly_schedule = workoutPlan.weekly_schedule.map((day: any, index: number) => {
+      let exercises = day.exercises;
+      
+      // If exercises is an object (keyed by name), convert to array
+      if (exercises && typeof exercises === 'object' && !Array.isArray(exercises)) {
+        console.log("Converting object exercises to array for day:", day.focus);
+        exercises = Object.entries(exercises)
+          .filter(([key]) => key !== 'generalNotes' && key !== 'notes')
+          .map(([name, details]: [string, any]) => ({
+            name,
+            sets: details?.sets || 3,
+            reps: details?.reps || "8-12",
+            rest_seconds: details?.rest_seconds || details?.rest || 90,
+            muscle_group: details?.muscle_group || details?.muscleGroup || day.focus,
+            instructions: details?.instructions || "",
+          }));
+      }
+      
+      // Ensure exercises is an array
+      if (!Array.isArray(exercises)) {
+        exercises = [];
+      }
+
+      return {
+        day: day.day || index + 1,
+        focus: day.focus || `Day ${index + 1}`,
+        exercises: exercises.map((ex: any) => ({
+          name: String(ex.name || "Unknown Exercise"),
+          sets: Number(ex.sets) || 3,
+          reps: String(ex.reps || "8-12"),
+          rest_seconds: Number(ex.rest_seconds || ex.rest) || 90,
+          muscle_group: String(ex.muscle_group || ex.muscleGroup || "General"),
+          instructions: String(ex.instructions || ""),
+        })),
+      };
+    });
 
     // Save the workout plan to the database
     const { error: insertError } = await supabase
