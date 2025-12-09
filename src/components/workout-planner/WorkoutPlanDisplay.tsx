@@ -175,7 +175,11 @@ export const WorkoutPlanDisplay = ({
 
       {/* Daily Workouts */}
       <div className="space-y-4">
-        {plan.weekly_schedule.map((day, dayIndex) => (
+        {Array.isArray(plan.weekly_schedule) && plan.weekly_schedule.map((day, dayIndex) => {
+          // Ensure exercises is always an array
+          const exercises = Array.isArray(day.exercises) ? day.exercises : [];
+          
+          return (
           <Collapsible
             key={dayIndex}
             open={expandedDays.has(day.day)}
@@ -195,7 +199,7 @@ export const WorkoutPlanDisplay = ({
                       <div>
                         <CardTitle className="text-lg">{day.focus}</CardTitle>
                         <p className="text-sm text-muted-foreground">
-                          {day.exercises.length} exercises
+                          {exercises.length} exercises
                         </p>
                       </div>
                     </div>
@@ -213,7 +217,7 @@ export const WorkoutPlanDisplay = ({
               <CollapsibleContent>
                 <CardContent className="pt-0">
                   <div className="space-y-3">
-                    {day.exercises.map((exercise, exIndex) => (
+                    {exercises.map((exercise, exIndex) => (
                       <div
                         key={exIndex}
                         className="flex items-start gap-3 p-4 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-xl border border-border hover:border-primary/30 transition-all group"
@@ -363,7 +367,8 @@ export const WorkoutPlanDisplay = ({
               </CollapsibleContent>
             </Card>
           </Collapsible>
-        ))}
+          );
+        })}
       </div>
 
       {/* Action Buttons */}
