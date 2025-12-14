@@ -9,27 +9,64 @@ const corsHeaders = {
 
 // Input validation schemas
 const splitSchema = z.object({
+  id: z.string().optional(),
   name: z.string().min(1).max(100),
   daysPerWeek: z.number().int().min(1).max(7),
   schedule: z.array(z.string().max(50)).min(1).max(7),
+  isCustom: z.boolean().optional(),
 });
 
 const personalizationSchema = z.object({
-  age: z.number().int().min(13).max(120),
+  age: z.string().or(z.number()),
   gender: z.enum(['male', 'female', 'other']),
   location: z.string().max(100),
   equipment: z.array(z.string().max(50)).max(20),
-  timePerSession: z.number().int().min(10).max(180),
-  experienceLevel: z.enum(['beginner', 'intermediate', 'advanced']),
+  timePerSession: z.string().or(z.number()),
+  experienceLevel: z.string(),
   injuries: z.string().max(500).optional().nullable(),
   preferredExercises: z.string().max(500).optional().nullable(),
+  trainingDaysPerWeek: z.string().or(z.number()).optional(),
 });
 
 const workoutPlanRequestSchema = z.object({
-  goal: z.enum(['fat_loss', 'bulking', 'maingaining', 'strength', 'endurance']),
+  goal: z.enum(['hypertrophy', 'strength', 'endurance', 'powerbuilding', 'fat-loss']),
   split: splitSchema,
   personalization: personalizationSchema,
 });
+
+// Goal-specific programming parameters
+const goalParameters: Record<string, { reps: string; rest: number; rpe: string; notes: string }> = {
+  hypertrophy: {
+    reps: "8-12",
+    rest: 90,
+    rpe: "7-8",
+    notes: "Focus on time under tension and muscle contraction. Control the eccentric.",
+  },
+  strength: {
+    reps: "3-6",
+    rest: 180,
+    rpe: "8-9",
+    notes: "Focus on progressive overload. Rest fully between sets.",
+  },
+  endurance: {
+    reps: "15-20",
+    rest: 45,
+    rpe: "6-7",
+    notes: "Keep rest short. Focus on muscular endurance and conditioning.",
+  },
+  powerbuilding: {
+    reps: "varies",
+    rest: 120,
+    rpe: "7-9",
+    notes: "Heavy compounds early (3-6 reps), accessory work higher reps (8-12).",
+  },
+  "fat-loss": {
+    reps: "12-15",
+    rest: 60,
+    rpe: "7-8",
+    notes: "Higher density training. Consider supersets and circuits.",
+  },
+};
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -61,17 +98,27 @@ serve(async (req) => {
 
     // Validate input
     const rawBody = await req.json();
+    console.log("Received request body:", JSON.stringify(rawBody));
+
     const validation = workoutPlanRequestSchema.safeParse(rawBody);
     
     if (!validation.success) {
       console.error("Validation error:", validation.error.errors);
-      return new Response(JSON.stringify({ error: "Invalid request format" }), {
+      return new Response(JSON.stringify({ error: "Invalid request format", details: validation.error.errors }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const { goal, split, personalization } = validation.data;
+    const goalParams = goalParameters[goal];
+    const age = typeof personalization.age === 'string' ? parseInt(personalization.age) : personalization.age;
+    const timePerSession = typeof personalization.timePerSession === 'string' 
+      ? parseInt(personalization.timePerSession) 
+      : personalization.timePerSession;
+    const trainingDays = personalization.trainingDaysPerWeek 
+      ? (typeof personalization.trainingDaysPerWeek === 'string' ? parseInt(personalization.trainingDaysPerWeek) : personalization.trainingDaysPerWeek)
+      : split.daysPerWeek;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -82,39 +129,61 @@ serve(async (req) => {
       });
     }
 
-    console.log("Generating workout plan for:", { goal, splitName: split.name, personalization });
+    console.log("Generating workout plan for:", { goal, splitName: split.name, trainingDays });
 
-    const prompt = `Generate a comprehensive ${split.daysPerWeek}-day weekly workout plan with these specifications:
+    const prompt = `Generate a comprehensive ${trainingDays}-day weekly workout program with evidence-based programming.
 
-GOAL: ${goal}
+TRAINING GOAL: ${goal.toUpperCase()}
+Programming Guidelines for ${goal}:
+- Target rep range: ${goalParams.reps}
+- Rest between sets: ${goalParams.rest} seconds
+- Target RPE: ${goalParams.rpe}
+- Key focus: ${goalParams.notes}
+
 WORKOUT SPLIT: ${split.name}
-SCHEDULE: ${split.schedule.join(', ')}
+SCHEDULE PATTERN: ${split.schedule.slice(0, trainingDays).join(', ')}
 
 USER PROFILE:
-- Age: ${personalization.age}
+- Age: ${age}
 - Gender: ${personalization.gender}
 - Training Location: ${personalization.location}
 - Available Equipment: ${personalization.equipment.join(', ')}
-- Time Per Session: ${personalization.timePerSession} minutes
+- Time Per Session: ${timePerSession} minutes
 - Experience Level: ${personalization.experienceLevel}
 ${personalization.injuries ? `- Injury Restrictions: ${personalization.injuries}` : ''}
 ${personalization.preferredExercises ? `- Preferred Exercises: ${personalization.preferredExercises}` : ''}
 
-REQUIREMENTS:
-1. Create exactly ${split.daysPerWeek} different workout days following the split: ${split.schedule.join(', ')}
+PROGRAMMING REQUIREMENTS:
+1. Create exactly ${trainingDays} workout days following the split pattern
 2. Each day should have 4-6 exercises appropriate for the focus
 3. Include compound movements first, then isolation exercises
-4. Adjust volume and intensity based on the ${goal} goal
-5. Consider the available equipment: ${personalization.equipment.join(', ')}
-6. Respect any injury restrictions mentioned
-7. Include any preferred exercises if they fit the day's focus
-8. Provide clear instructions for each exercise
+4. Apply ${goal} specific rep ranges and rest periods
+5. Include target RPE for each exercise
+6. Consider the available equipment: ${personalization.equipment.join(', ')}
+7. Respect any injury restrictions mentioned
+8. Include preferred exercises if they fit the day's focus
 
-Return a JSON object with this EXACT structure:
+${goal === 'powerbuilding' ? `
+POWERBUILDING PERIODIZATION:
+- Day 1-2: Heavy strength focus (3-5 reps, RPE 8-9)
+- Day 3-4: Hypertrophy focus (8-12 reps, RPE 7-8)
+- Day 5+: Mix of both with volume work
+` : ''}
+
+${goal === 'fat-loss' ? `
+FAT LOSS TRAINING STRUCTURE:
+- Include supersets where possible
+- Minimize rest between exercises
+- Add metabolic finishers (optional)
+- Focus on compound movements for calorie burn
+` : ''}
+
+Return a JSON object with this EXACT structure (no markdown, just JSON):
 {
   "name": "${split.name} - ${goal.charAt(0).toUpperCase() + goal.slice(1)} Program",
-  "description": "A ${split.daysPerWeek}-day ${split.name} program optimized for ${goal}",
-  "duration_minutes": ${personalization.timePerSession},
+  "description": "A ${trainingDays}-day ${split.name} program optimized for ${goal}",
+  "duration_minutes": ${timePerSession},
+  "goal": "${goal}",
   "weekly_schedule": [
     {
       "day": 1,
@@ -123,24 +192,27 @@ Return a JSON object with this EXACT structure:
         {
           "name": "Exercise Name",
           "sets": 4,
-          "reps": "8-12",
-          "rest_seconds": 90,
+          "reps": "${goalParams.reps}",
+          "rest_seconds": ${goalParams.rest},
+          "target_rpe": "${goalParams.rpe}",
           "muscle_group": "Target Muscle",
-          "instructions": "Brief form cues and tips"
+          "instructions": "Brief form cues"
         }
       ]
     }
   ],
   "progression": {
-    "week1": "Foundation - Focus on form and moderate weights",
-    "week2": "Volume increase - Add 1 set or 2-3 reps per exercise",
-    "week3": "Intensity increase - Add 2.5-5kg to main lifts",
-    "week4": "Deload - Reduce volume by 40%, focus on recovery"
+    "week1": "Foundation phase",
+    "week2": "Volume increase",
+    "week3": "Intensity increase",
+    "week4": "Deload week"
+  },
+  "adaptation_rules": {
+    "low_rpe": "If average RPE < 6 for 2+ sessions: increase weight by 2.5-5kg",
+    "high_rpe": "If average RPE > 9 for 2+ sessions: reduce volume by 20%",
+    "missed_workouts": "If 2+ workouts missed: reduce frequency temporarily"
   }
-}
-
-Ensure each day in weekly_schedule follows the corresponding focus from the schedule array.
-Include ${split.daysPerWeek} complete workout days with full exercise details.`;
+}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -153,7 +225,7 @@ Include ${split.daysPerWeek} complete workout days with full exercise details.`;
         messages: [
           { 
             role: "system", 
-            content: "You are an expert strength and conditioning coach with deep knowledge of exercise science, periodization, and program design. Always respond with valid JSON only, no markdown formatting." 
+            content: "You are an expert strength and conditioning coach with deep knowledge of exercise science, periodization, and evidence-based program design. Always respond with valid JSON only, no markdown code fences." 
           },
           { role: "user", content: prompt }
         ],
@@ -161,7 +233,22 @@ Include ${split.daysPerWeek} complete workout days with full exercise details.`;
     });
 
     if (!response.ok) {
-      console.error("AI gateway error:", response.status);
+      const errorText = await response.text();
+      console.error("AI gateway error:", response.status, errorText);
+      
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "AI service credits exhausted." }), {
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      
       return new Response(JSON.stringify({ error: "AI service temporarily unavailable" }), {
         status: 502,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -184,7 +271,7 @@ Include ${split.daysPerWeek} complete workout days with full exercise details.`;
       throw new Error("AI returned invalid plan structure");
     }
 
-    // Ensure each day's exercises is an array
+    // Ensure each day's exercises is an array with proper structure
     workoutPlan.weekly_schedule = workoutPlan.weekly_schedule.map((day: any, index: number) => {
       let exercises = day.exercises;
       
@@ -196,8 +283,9 @@ Include ${split.daysPerWeek} complete workout days with full exercise details.`;
           .map(([name, details]: [string, any]) => ({
             name,
             sets: details?.sets || 3,
-            reps: details?.reps || "8-12",
-            rest_seconds: details?.rest_seconds || details?.rest || 90,
+            reps: details?.reps || goalParams.reps,
+            rest_seconds: details?.rest_seconds || details?.rest || goalParams.rest,
+            target_rpe: details?.target_rpe || details?.rpe || goalParams.rpe,
             muscle_group: details?.muscle_group || details?.muscleGroup || day.focus,
             instructions: details?.instructions || "",
           }));
@@ -210,17 +298,21 @@ Include ${split.daysPerWeek} complete workout days with full exercise details.`;
 
       return {
         day: day.day || index + 1,
-        focus: day.focus || `Day ${index + 1}`,
+        focus: day.focus || split.schedule[index] || `Day ${index + 1}`,
         exercises: exercises.map((ex: any) => ({
           name: String(ex.name || "Unknown Exercise"),
           sets: Number(ex.sets) || 3,
-          reps: String(ex.reps || "8-12"),
-          rest_seconds: Number(ex.rest_seconds || ex.rest) || 90,
+          reps: String(ex.reps || goalParams.reps),
+          rest_seconds: Number(ex.rest_seconds || ex.rest) || goalParams.rest,
+          target_rpe: String(ex.target_rpe || ex.rpe || goalParams.rpe),
           muscle_group: String(ex.muscle_group || ex.muscleGroup || "General"),
           instructions: String(ex.instructions || ""),
         })),
       };
     });
+
+    // Add goal to the plan
+    workoutPlan.goal = goal;
 
     // Save the workout plan to the database
     const { error: insertError } = await supabase
