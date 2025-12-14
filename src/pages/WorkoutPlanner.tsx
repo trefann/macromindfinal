@@ -11,7 +11,9 @@ import { SplitSelection, WorkoutSplit } from "@/components/workout-planner/Split
 import { PersonalizationForm, PersonalizationData } from "@/components/workout-planner/PersonalizationForm";
 import { WorkoutPlanDisplay, WorkoutPlan } from "@/components/workout-planner/WorkoutPlanDisplay";
 import { WorkoutTracker } from "@/components/workout-planner/WorkoutTracker";
+import { WeeklyPlanView } from "@/components/workout-planner/WeeklyPlanView";
 import { CustomWorkoutBuilder, CustomWorkout } from "@/components/workout-planner/CustomWorkoutBuilder";
+import { WorkoutSession } from "@/components/workout-tracking/WorkoutSession";
 
 type PlannerStep = "goal" | "split" | "personalize" | "plan";
 
@@ -19,6 +21,7 @@ const WorkoutPlanner = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("planner");
+  const [activeWorkoutDay, setActiveWorkoutDay] = useState<number | null>(null);
   const { toast } = useToast();
 
   // Multi-step planner state
@@ -91,14 +94,14 @@ const WorkoutPlanner = () => {
       setStep("plan");
 
       toast({
-        title: "Plan Generated!",
-        description: "Your personalized workout plan is ready.",
+        title: "Program Generated!",
+        description: "Your personalized workout program is ready.",
       });
     } catch (error: any) {
       console.error("Error generating plan:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to generate workout plan",
+        description: error.message || "Failed to generate workout program",
         variant: "destructive",
       });
     } finally {
@@ -125,13 +128,13 @@ const WorkoutPlanner = () => {
       if (error) throw error;
 
       toast({
-        title: "Plan Saved!",
-        description: "Your workout plan has been saved to history.",
+        title: "Program Saved!",
+        description: "Your workout program has been saved to history.",
       });
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Failed to save workout plan",
+        description: error.message || "Failed to save workout program",
         variant: "destructive",
       });
     } finally {
@@ -157,18 +160,30 @@ const WorkoutPlanner = () => {
     setWorkoutPlan(updatedPlan);
   };
 
+  const handleStartWorkout = (dayIndex: number) => {
+    setActiveWorkoutDay(dayIndex);
+    setActiveTab("track");
+  };
+
+  const handleSessionComplete = () => {
+    setActiveWorkoutDay(null);
+  };
+
   const renderPlannerContent = () => {
-    // If we have a plan, show it
+    // If we have a plan, show the weekly view
     if (step === "plan" && workoutPlan) {
       return (
-        <WorkoutPlanDisplay
-          plan={workoutPlan}
-          onSave={handleSavePlan}
-          onRegenerate={handleRegenerate}
-          onCreateNew={handleCreateNew}
-          onUpdatePlan={handleUpdatePlan}
-          saving={saving}
-        />
+        <div className="space-y-6">
+          <WeeklyPlanView plan={workoutPlan} onStartWorkout={handleStartWorkout} />
+          <WorkoutPlanDisplay
+            plan={workoutPlan}
+            onSave={handleSavePlan}
+            onRegenerate={handleRegenerate}
+            onCreateNew={handleCreateNew}
+            onUpdatePlan={handleUpdatePlan}
+            saving={saving}
+          />
+        </div>
       );
     }
 
@@ -199,6 +214,31 @@ const WorkoutPlanner = () => {
     }
   };
 
+  const renderTrackContent = () => {
+    // If actively doing a workout
+    if (activeWorkoutDay !== null && workoutPlan) {
+      const dayWorkout = workoutPlan.weekly_schedule[activeWorkoutDay];
+      return (
+        <WorkoutSession
+          dayWorkout={dayWorkout}
+          dayNumber={activeWorkoutDay + 1}
+          onSessionComplete={handleSessionComplete}
+        />
+      );
+    }
+
+    // Otherwise show the tracker
+    return (
+      <WorkoutTracker
+        plan={workoutPlan}
+        onNoPlan={() => {
+          setActiveTab("planner");
+          handleCreateNew();
+        }}
+      />
+    );
+  };
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen pt-24 pb-16 px-4">
@@ -208,7 +248,7 @@ const WorkoutPlanner = () => {
               AI <span className="gradient-text">Workout Planner</span>
             </h1>
             <p className="text-muted-foreground text-sm sm:text-base">
-              Get a scientifically structured, personalized workout program
+              Structured, goal-driven, adaptive workout programming
             </p>
           </div>
 
@@ -248,13 +288,7 @@ const WorkoutPlanner = () => {
             </TabsContent>
 
             <TabsContent value="track">
-              <WorkoutTracker
-                plan={workoutPlan}
-                onNoPlan={() => {
-                  setActiveTab("planner");
-                  handleCreateNew();
-                }}
-              />
+              {renderTrackContent()}
             </TabsContent>
 
             <TabsContent value="history">

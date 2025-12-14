@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Target, Flame, Scale, Dumbbell, Heart } from "lucide-react";
+import { Target, Flame, Dumbbell, Heart, Zap } from "lucide-react";
 
-export type FitnessGoal = "fat-loss" | "bulking" | "maingaining" | "strength" | "endurance";
+export type FitnessGoal = "hypertrophy" | "strength" | "endurance" | "powerbuilding" | "fat-loss";
 
 interface GoalSelectionProps {
   onSelect: (goal: FitnessGoal) => void;
@@ -9,39 +9,44 @@ interface GoalSelectionProps {
 
 const goals = [
   {
-    id: "fat-loss" as FitnessGoal,
-    name: "Fat Loss",
-    description: "Burn fat while maintaining muscle mass",
-    icon: Flame,
-    color: "from-orange-500 to-red-500",
-  },
-  {
-    id: "bulking" as FitnessGoal,
-    name: "Bulking",
-    description: "Build maximum muscle and size",
+    id: "hypertrophy" as FitnessGoal,
+    name: "Hypertrophy",
+    description: "Build muscle size with moderate loads and higher volume",
     icon: Dumbbell,
     color: "from-blue-500 to-purple-500",
-  },
-  {
-    id: "maingaining" as FitnessGoal,
-    name: "Maingaining",
-    description: "Gain muscle while staying lean",
-    icon: Scale,
-    color: "from-green-500 to-teal-500",
+    details: "8-12 reps • 60-90s rest • RPE 7-8",
   },
   {
     id: "strength" as FitnessGoal,
     name: "Strength",
-    description: "Maximize strength and power",
+    description: "Maximize strength with heavy compounds and lower reps",
     icon: Target,
-    color: "from-red-500 to-pink-500",
+    color: "from-red-500 to-orange-500",
+    details: "3-6 reps • 2-4min rest • RPE 8-9",
   },
   {
     id: "endurance" as FitnessGoal,
     name: "Endurance",
-    description: "Improve stamina and conditioning",
+    description: "Improve stamina with lighter loads and higher reps",
     icon: Heart,
     color: "from-cyan-500 to-blue-500",
+    details: "15-20+ reps • 30-60s rest • RPE 6-7",
+  },
+  {
+    id: "powerbuilding" as FitnessGoal,
+    name: "Powerbuilding",
+    description: "Combine strength and hypertrophy in a periodized mix",
+    icon: Zap,
+    color: "from-yellow-500 to-red-500",
+    details: "Mixed rep ranges • Periodized weekly",
+  },
+  {
+    id: "fat-loss" as FitnessGoal,
+    name: "Fat Loss",
+    description: "Burn fat while preserving muscle mass",
+    icon: Flame,
+    color: "from-orange-500 to-pink-500",
+    details: "Higher density • Shorter rest • Supersets",
   },
 ];
 
@@ -49,9 +54,9 @@ export const GoalSelection = ({ onSelect }: GoalSelectionProps) => {
   return (
     <Card className="glass-card">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">What's Your Goal?</CardTitle>
+        <CardTitle className="text-2xl">Select Your Training Goal</CardTitle>
         <CardDescription>
-          Choose your primary fitness objective to get a personalized workout plan
+          Choose your primary objective to optimize your workout programming
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -66,7 +71,8 @@ export const GoalSelection = ({ onSelect }: GoalSelectionProps) => {
                 <goal.icon className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-semibold text-lg mb-1">{goal.name}</h3>
-              <p className="text-sm text-muted-foreground">{goal.description}</p>
+              <p className="text-sm text-muted-foreground mb-2">{goal.description}</p>
+              <span className="text-xs text-primary/80 font-medium">{goal.details}</span>
             </button>
           ))}
         </div>

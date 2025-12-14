@@ -19,6 +19,7 @@ export interface PersonalizationData {
   preferredExercises: string;
   age: string;
   gender: string;
+  trainingDaysPerWeek: string;
 }
 
 interface PersonalizationFormProps {
@@ -52,6 +53,7 @@ export const PersonalizationForm = ({ goal, split, onSubmit, onBack, loading }: 
     preferredExercises: "",
     age: "",
     gender: "",
+    trainingDaysPerWeek: split.daysPerWeek.toString(),
   });
 
   const handleEquipmentChange = (equipmentId: string, checked: boolean) => {
@@ -72,6 +74,14 @@ export const PersonalizationForm = ({ goal, split, onSubmit, onBack, loading }: 
                       formData.timePerSession && formData.experienceLevel &&
                       formData.age && formData.gender;
 
+  const goalDescriptions: Record<FitnessGoal, string> = {
+    hypertrophy: "moderate loads with higher volume (8-12 reps, 60-90s rest)",
+    strength: "heavy compound lifts with lower reps (3-6 reps, 2-4min rest)",
+    endurance: "lighter loads with high reps (15-20+ reps, 30-60s rest)",
+    powerbuilding: "periodized mix of strength and hypertrophy",
+    "fat-loss": "higher density training with shorter rest periods",
+  };
+
   return (
     <Card className="glass-card">
       <CardHeader>
@@ -81,9 +91,9 @@ export const PersonalizationForm = ({ goal, split, onSubmit, onBack, loading }: 
             Back
           </Button>
         </div>
-        <CardTitle className="text-2xl">Personalize Your Plan</CardTitle>
+        <CardTitle className="text-2xl">Personalize Your Program</CardTitle>
         <CardDescription>
-          Tell us about yourself to create the perfect {split.name} program
+          Your {split.name} program will be optimized for {goal} with {goalDescriptions[goal]}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -132,6 +142,26 @@ export const PersonalizationForm = ({ goal, split, onSubmit, onBack, loading }: 
                   <SelectItem value="home-gym">Home Gym</SelectItem>
                   <SelectItem value="home-minimal">Home (Minimal Equipment)</SelectItem>
                   <SelectItem value="outdoors">Outdoors</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="days">Training Days Per Week *</Label>
+              <Select 
+                value={formData.trainingDaysPerWeek} 
+                onValueChange={(value) => setFormData({ ...formData, trainingDaysPerWeek: value })}
+              >
+                <SelectTrigger className="bg-muted/50">
+                  <SelectValue placeholder="Days per week" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2">2 days</SelectItem>
+                  <SelectItem value="3">3 days</SelectItem>
+                  <SelectItem value="4">4 days</SelectItem>
+                  <SelectItem value="5">5 days</SelectItem>
+                  <SelectItem value="6">6 days</SelectItem>
+                  <SelectItem value="7">7 days</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -196,10 +226,10 @@ export const PersonalizationForm = ({ goal, split, onSubmit, onBack, loading }: 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="injuries">Injury Restrictions (optional)</Label>
+            <Label htmlFor="injuries">Injury or Mobility Restrictions (optional)</Label>
             <Textarea
               id="injuries"
-              placeholder="Any injuries or areas to avoid? E.g., lower back issues, shoulder injury..."
+              placeholder="Any injuries, mobility issues, or areas to avoid? E.g., lower back issues, shoulder impingement..."
               value={formData.injuries}
               onChange={(e) => setFormData({ ...formData, injuries: e.target.value })}
               className="bg-muted/50 min-h-[80px]"
@@ -210,7 +240,7 @@ export const PersonalizationForm = ({ goal, split, onSubmit, onBack, loading }: 
             <Label htmlFor="preferred">Preferred Exercises (optional)</Label>
             <Textarea
               id="preferred"
-              placeholder="Any exercises you love or want to include? E.g., deadlifts, pull-ups..."
+              placeholder="Any exercises you love or want to include? E.g., deadlifts, pull-ups, hip thrusts..."
               value={formData.preferredExercises}
               onChange={(e) => setFormData({ ...formData, preferredExercises: e.target.value })}
               className="bg-muted/50 min-h-[80px]"
@@ -226,12 +256,12 @@ export const PersonalizationForm = ({ goal, split, onSubmit, onBack, loading }: 
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Generating Your Plan...
+                Generating Your Program...
               </>
             ) : (
               <>
                 <Sparkles className="mr-2 h-5 w-5" />
-                Generate Personalized Plan
+                Generate Personalized Program
               </>
             )}
           </Button>
